@@ -1,0 +1,175 @@
+/* eslint-disable no-lone-blocks */
+function TreeUtils(){
+    var treeString="empty";
+    var TREEROOT;
+    var SPNAMES=[];
+    var maxNameLength=0;
+    var initX=40;
+    var initY=15;
+    var scaleFactor=50;
+    var spaceFactor=50
+    var heightFactor=100;
+    var heightToSpaceFactor=1;
+    var space=0;
+    var tallestTreeScale=false;
+    var useCladogram=false;
+    var treeVec = [];
+    var aString="";
+    var treePos="";
+    var maxHeight=0;
+    var value=0;
+    var scaleBar=0.0;
+
+
+    this.drawOneTree = (value,treeVec,useCladogram,canvas,context,tallestTreeScale,hF) => {   
+        if(value < treeVec.length){
+            // 1
+            if(!useCladogram)
+            this.treeFromNewick(treeVec[value],true);
+            else
+            this.treeFromNewick(treeVec[value],false);
+        
+        
+            // 2
+            spaceFactor = (canvas.width-initX)*0.9/SPNAMES.length;
+            space=0;
+            if(!useCladogram){
+                if(tallestTreeScale){
+                    heightFactor=hF/maxHeight;
+                }
+                else{
+                    heightFactor=hF/TREEROOT.left.height;
+                }
+            }
+        
+            else{
+                heightFactor=hF/TREEROOT.height;
+            }
+            // draw scale bar at left
+            // if(value==0)
+            if(!useCladogram){
+            scaleBar=30.0/heightFactor;
+            makeEdge(initX-40,initY+maxNameLength,initY+maxNameLength+scaleBar*heightFactor,context)
+            context.fillText(scaleBar.toPrecision(1),initX-35,initY+maxNameLength+scaleBar*heightFactor);
+            }
+        
+            context.font = "italic bold 16px serif";
+            printNames(SPNAMES,context);
+            if(!useCladogram){
+                postOrder(TREEROOT,context,true);
+            }
+            else{
+                postOrder(TREEROOT,context,false);
+            }
+        }
+    }
+
+    this.treeFromNewick = (newickString,brLen) => {
+        if(!brLen){
+            let height = newickString.match(/(\,)/g).length;
+            // overwrite input string 
+            newickString = newickString.replace(/(#\d+\.\d+)|(\d+\.\d+)/g,"").replace(/e-\d+/g,"").replace(/:/g,"");
+            SPNAMES = newickString.match(/(?=\D)(\w+)/g);
+            this.getMaxLenSN(SPNAMES);
+            let newick = newickString.match(/(\w+)|(\()|(\))|(\,)/g);
+            let n = new Node("root", null, null,null,null,height);
+            TREEROOT = n;
+            let current = TREEROOT;
+            current.height=0;
+            for(let pos = 0; pos < newick.length; pos++){
+                if((newick[pos] === "(")||(newick[pos]===",")){
+                    n = new Node("empty", null, null,null,null,null);
+                }
+                switch(newick[pos]) {
+                    case "(":
+                        // up left
+                            current.left = n;
+                            n.father = current;
+                            current = n;
+                        break;
+                    case ",":
+                        // back then right
+                            current = current.father;
+                            current.right=n;
+                            n.father = current;
+                            current = n;
+                        break;
+                    case ")":
+                        // back
+                            current = current.father;
+                            current.height=Math.max(current.right.height,current.left.height)+1;
+                        break;
+                    default:
+                            current.data = newick[pos];
+                            current.height = 0;
+                        break;
+                    }
+	        }
+	        TREEROOT.height=Math.max(current.right.height,current.left.height)+1;
+        }
+
+        else if(brLen){
+            SPNAMES = newickString.replace(/(#\d+\.\d+)|(\d+\.\d+)/g,"").replace(/e-\d+/g,"").replace(/:/g,"").match(/(?=\D)(\w+)/g);
+            this.getMaxLenSN(SPNAMES);
+            newickString=newickString.replace(/(#\d+\.\d+)([eE](\+|-)?[0-9]+)/g,"").replace(/:/g,"");
+            let newick=newickString.match(/((\+|-)?([0-9]+\.[0-9]*|\.[0-9]+)([eE](\+|-)?[0-9]+)?)|(\w+)|(\()|(\))|(\,)/g); 
+            let n = new Node("root", null, null,null,null,null);
+            TREEROOT = n;
+            let current = TREEROOT;
+            let cumY=0.0;
+            for(let pos = 0; pos < newick.length; pos++){
+                if(newick[pos] !== ")"){
+                    n = new Node("empty", null, null,null,null,null);
+                }
+                switch(newick[pos]) {
+                    case "(":
+                        // up left
+                        current.left = n;
+                        n.father = current;
+                        current = n;
+                        break;
+                    case ",":
+                        // back then right
+                        current = current.father;
+                        current.right=n;
+                        n.father = current;
+                        current = n;
+                        break;
+                    case ")":
+                        // back
+                        cumY = current.height;
+                        current = current.father;
+                        break;
+                    case ";":
+                        // at end
+                        break;
+                    default:
+                        if(newick[pos].match(/(\+|-)?([0-9]+\.[0-9]*|\.[0-9]+)([eE](\+|-)?[0-9]+)?/) != null){
+                            current.data = newick[pos];
+                            current.height = parseFloat(newick[pos])+cumY;
+                        }
+                        else{
+                            cumY=0.0;
+                        }
+                        break;
+                }
+            }    
+        }
+    }
+
+    this.getMaxLenSN = (sN, context) => {
+        let mLen = 0;
+        let iD = 0;
+        for(let i=0; i<sN; i++){
+            if(sN[i].length > mLen){
+                mLen = sN[i].length;
+                iD = i;
+            }
+            context.font = "italic bold 16px serif";
+            maxNameLength=context.measureText(sN[iD]).width;
+        }
+
+    }
+}
+    
+module.exports = TreeUtils;

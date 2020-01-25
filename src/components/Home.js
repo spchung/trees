@@ -7,9 +7,9 @@ class Home extends React.Component{
 
         this.state = {
             uploaded: false, 
+            trees: [],
         }
         // empty array we will populate with input data
-        this.treeVect = []
     }
 
     handleUpload = (ev) => {
@@ -18,30 +18,30 @@ class Home extends React.Component{
             var reader = new FileReader();
             var file = document.querySelector('input[type=file]').files[0];
             var textFile = /text.*/;
-
+            var scope = this; // for anonymous funtion below that is not in the class component 
             if(file.type.match(textFile)) {
                 reader.onload = function (event) {
-                    this.treeVect = event.target.result.split("\n");
+                    scope.setState({
+                        trees : event.target.result.split("\n"),    // loads data into state  
+                        uploaded: true                              // switch upload status
+                    });
                 }
-            }else{
+                reader.readAsText(file);
+            }
+            else {
                 alert("Upload was not a .txt file");
             }
-            // loads data into treeVect
-            reader.readAsText(file);
-            // set file upload status to True
-            this.setState({
-                uploaded: true,
-            });
         }
         else {
-            alert("Your browswer is too old for HTML5 file uploads. Please update. ");
+            alert("Your browswer is too old for HTML5 file uploads. Please update.");
         }
     }
+
 
     render(){
         return(
             <div>
-                <Canvas received={this.state.uploaded}/>
+                <Canvas received={this.state.uploaded} trees = {this.state.trees}/>
                 <input type ='file' onChange={this.handleUpload} />
             </div>
         )
