@@ -1,5 +1,6 @@
 import React from 'react'
 import Canvas from './Canvas'
+import Checkbox from './Checkbox'
 
 class Home extends React.Component{
     constructor(){
@@ -8,11 +9,15 @@ class Home extends React.Component{
         this.state = {
             uploaded: false, 
             trees: [],
+            RelScaling : true,
+            Cladogram : false,
+            // updateChild: false
         }
         // empty array we will populate with input data
     }
 
     handleUpload = (ev) => {
+        // this.setState({ updateChild : !this.state.updateChild }); 
         // check browser capabilities  
         if( window.File && window.FileReader && window.FileList && window.Blob ){
             var reader = new FileReader();
@@ -37,12 +42,26 @@ class Home extends React.Component{
         }
     }
 
+    handleRelScalingChange = (ev)=> {
+        this.setState({
+            RelScaling: ev.target.checked
+        });
+    }
+
+    handleCladogramChange = (ev) => {
+        this.setState({
+            Cladogram : ev.target.checked
+        });
+    }
+
 
     render(){
         return(
             <div>
-                <Canvas received={this.state.uploaded} trees = {this.state.trees}/>
+                <Canvas received={this.state.uploaded} trees = {this.state.trees} clado = {this.state.Cladogram} relscal={this.state.RelScaling}/>
                 <input type ='file' onChange={this.handleUpload} />
+                <Checkbox text="Relative Scaling" onChange={this.handleRelScalingChange} checked={this.state.RelScaling} />
+                <Checkbox text="Cladogram" onChange={this.handleCladogramChange} checked={this.state.Cladogram} />
             </div>
         )
     }

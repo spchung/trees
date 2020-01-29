@@ -3,23 +3,167 @@ function TreeUtils(){
     var treeString="empty";
     var TREEROOT;
     var SPNAMES=[];
-    var maxNameLength=0;
+    var maxNameLength=0; 
     var initX=40;
-    var initY=15;
+    var initY=15; 
     var scaleFactor=50;
     var spaceFactor=50
     var heightFactor=100;
     var heightToSpaceFactor=1;
     var space=0;
-    var tallestTreeScale=false;
-    var useCladogram=false;
     var treeVec = [];
     var aString="";
     var treePos="";
-    var maxHeight=0;
+    var maxHeight=0; 
     var value=0;
     var scaleBar=0.0;
 
+    this.tallestTreeScale=false;
+    this.useCladogram=false;
+
+    //hidden from class
+    function Node(data, left, right, father){
+        this.data = data;
+        this.left = left;
+        this.right = right;
+        this.father = father;
+        this.space = 0;
+        this.height = 0; 
+        // this.show = show;
+    }
+
+    this.getMaxHeight = (noTr, treeVec) => {
+        maxHeight=0;
+        for(let y=0; y<noTr; y++){
+            let h1 = this.getTreeHeight(treeVec[y]);
+            if(h1 > maxHeight){
+                maxHeight = h1;
+            }
+        }
+    }
+
+    this.getTreeHeight = (tree) => {
+        // strip all thetas out of tree
+        var Newtree = tree.replace(/(#\d.\d+)([eE](\+|-)?[0-9]+)?/g,"");
+        // count opening parenthese until first tip taxa is encountered
+        var p=0;
+        while(Newtree[p]==="("){
+            p++;
+        }
+        // strip all leading "("s out of tree
+        Newtree = Newtree.replace(/\(+/,"");
+        // put elements of tree into a vector
+        var newick=Newtree.match(/((\+|-)?([0-9]+\.[0-9]*|\.[0-9]+)([eE](\+|-)?[0-9]+)?)|(\w+)|(\()|(\))|(\,)/g); // ([eE][-+]?[0-9]+)?) /g);
+        // get tree height
+        var blsum=0;
+        blsum += Number(newick[1]); 
+        var j=0;
+        for(var k=2; k<newick.length; k++){
+            if(newick[k]==="("){
+                j++;
+            }
+            else if ((newick[k]===")")&&(j===0)&&(p>1)) {
+                blsum += Number(newick[k+1]); p--;
+            }
+            else if ((newick[k]===")")&&(j>0)) {
+                j--;
+            }
+        }
+        return blsum;
+    }
+
+    this.makeTrees = () => {
+
+    }
+
+    //context === this.ctx
+    this.makeEdge = (x,y,z,context) => {
+        context.lineWidth = 3;
+        context.lineJoin = 'round';
+        context.beginPath();
+        context.moveTo(x,y);
+        context.lineTo(x,z);
+        context.stroke();
+    }
+
+    this.printNames = (nameArray, context) => {
+        let currX=initX+spaceFactor;
+        let cY=initY+maxNameLength -12;
+
+        for (let i=0; i<nameArray.length;i++){
+            context.textAlign='start';
+            context.textBaseline='middle';
+            context.save();
+            context.translate(currX,cY);
+            context.rotate(Math.PI*(3/2));	
+            context.fillText(nameArray[i],0,0);
+            context.restore();
+	        currX+=spaceFactor;
+        }
+    } 
+
+    this.postOrder = (node,context,brLng) => {
+        if (!brLng){ // is a cladogram with no branch lengths
+            if(node === null){
+                return; 
+            }
+            if(node.left != null){
+                this.postOrder(node.left, context, false);
+            }
+            if(node.right != null){
+                this.postOrder(node.right, context, false);
+            } 
+            if((node.left == null)&&(node.right == null)){
+                space+=spaceFactor;
+                node.space=space;
+                this.makeEdge(node.space+initX,node.height*heightFactor+initY+maxNameLength,node.father.height*heightFactor+initY+maxNameLength,context);
+            }
+            else {
+                node.space = (node.left.space + node.right.space)/2;
+                context.lineWidth = 2;
+                context.lineJoin = 'round';
+                context.beginPath();
+                context.moveTo(node.left.space+initX,node.height*heightFactor+initY+maxNameLength);
+                context.lineTo(node.right.space+initX,node.height*heightFactor+initY+maxNameLength);
+                context.stroke();
+                if(node.father != null){
+                    // var y1=node.right.height*heightFactor+initY+maxNameLength;
+                    // var y2=node.height*heightFactor+initY+maxNameLength;
+                    this.makeEdge(node.space+initX,node.height*heightFactor+initY+maxNameLength,node.father.height*heightFactor+initY+maxNameLength,context);
+                }
+            }
+        }
+        else if(brLng){
+            if(node === null){
+                return;
+            }
+            if(node.left != null){
+                this.postOrder(node.left, context, true);
+            }
+            if(node.right != null){
+                this.postOrder(node.right, context, true);
+            }
+            if((node.left == null)&&(node.right == null)){
+                space+=spaceFactor;
+                node.space=space;
+                // var y2=node.height*heightFactor+initY+maxNameLength;
+                this.makeEdge(node.space+initX,initY+maxNameLength,node.height*heightFactor+initY+maxNameLength,context);
+            }
+            else {
+                node.space = (node.left.space + node.right.space)/2;
+                context.lineWidth = 2;
+                context.lineJoin = 'round';
+                context.beginPath();
+                context.moveTo(node.left.space+initX,node.right.height*heightFactor+initY+maxNameLength);
+                context.lineTo(node.right.space+initX,node.right.height*heightFactor+initY+maxNameLength);
+                context.stroke();
+                if(node.father != null){
+                    this.makeEdge(node.space+initX,node.right.height*heightFactor+initY+maxNameLength,node.height*heightFactor+initY+maxNameLength,context);
+
+                }
+            }
+        }
+    }
 
     this.drawOneTree = (value,treeVec,useCladogram,canvas,context,tallestTreeScale,hF) => {   
         if(value < treeVec.length){
@@ -28,7 +172,6 @@ function TreeUtils(){
             this.treeFromNewick(treeVec[value],true);
             else
             this.treeFromNewick(treeVec[value],false);
-        
         
             // 2
             spaceFactor = (canvas.width-initX)*0.9/SPNAMES.length;
@@ -48,18 +191,18 @@ function TreeUtils(){
             // draw scale bar at left
             // if(value==0)
             if(!useCladogram){
-            scaleBar=30.0/heightFactor;
-            makeEdge(initX-40,initY+maxNameLength,initY+maxNameLength+scaleBar*heightFactor,context)
-            context.fillText(scaleBar.toPrecision(1),initX-35,initY+maxNameLength+scaleBar*heightFactor);
+                scaleBar=30.0/heightFactor;
+                this.makeEdge(initX-40,initY+maxNameLength,initY+maxNameLength+scaleBar*heightFactor,context)
+                context.fillText(scaleBar.toPrecision(1),initX-35,initY+maxNameLength+scaleBar*heightFactor);
             }
         
             context.font = "italic bold 16px serif";
-            printNames(SPNAMES,context);
+            this.printNames(SPNAMES,context);
             if(!useCladogram){
-                postOrder(TREEROOT,context,true);
+                this.postOrder(TREEROOT,context,true);
             }
             else{
-                postOrder(TREEROOT,context,false);
+                this.postOrder(TREEROOT,context,false);
             }
         }
     }
