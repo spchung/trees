@@ -18,6 +18,7 @@ class Canvas extends React.Component{
             Cladogram : this.props.clado,
         };
         this.TreeOfTrees = " ";
+        this.currentTree = 0;
         this.utils = new TreeUtils(); // make a global 
     }
     // update local state from props changes 
@@ -70,38 +71,33 @@ class Canvas extends React.Component{
     onWindowResize = () => {
         this.ctx.canvas.width = window.innerWidth;
         this.ctx.canvas.height = window.innerHeight*0.8;
+        this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
+        this.utils.drawOneTree(this.currentTree,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
+
 
     }
     // NOTE: hF = this.ctx.height*0.9-this.maxNameLength
     swapTree = (i) => {
         let index = Math.round(i);
+        this.currentTree = index;
         this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
         this.utils.drawOneTree(index,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
     }
 
     /////////////////////////////// TEST Functions ////////////////////////////////////////
-    draw = () => {
-        this.ctx.lineWidth = 3;
-        this.ctx.lineJoin = 'round';
-        this.ctx.beginPath();
-        this.ctx.moveTo(50,50);
-        this.ctx.lineTo(1000,50);
-        this.ctx.stroke();
-    }
-
-    // checkVar = () => {
-    //     if (this.utils.useCladogram){
-    //         console.log("Cladogram unabled");
-    //     }
-    //     if(this.utils.tallestTreeScale){
-    //         console.log("relscale enabled");
-    //     }
+    // draw = () => {
+    //     this.ctx.lineWidth = 3;
+    //     this.ctx.lineJoin = 'round';
+    //     this.ctx.beginPath();
+    //     this.ctx.moveTo(50,50);
+    //     this.ctx.lineTo(1000,50);
+    //     this.ctx.stroke();
     // }
 
 
     render(){
         return(
-            <>
+            <div style={{marginLeft:30, marginTop:15, marginRight:30}}>
                 <canvas ref="canvas" width={window.innerWidth} height={(window.innerHeight*0.8)} />
                 {/* <button onClick = {this.draw}>X</button> */}
                 <Slider
@@ -110,7 +106,7 @@ class Canvas extends React.Component{
                     formatFn={number => number.toFixed(2)}
                     onChange={value => this.swapTree(value)} // round value to get index for treeVect
                 />
-            </>
+            </div>
         )
     }
 }

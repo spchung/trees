@@ -11,14 +11,10 @@ class Home extends React.Component{
             trees: [],
             RelScaling : true,
             Cladogram : false,
-            // updateChild: false
         }
-        // empty array we will populate with input data
     }
 
     handleUpload = (ev) => {
-        // this.setState({ updateChild : !this.state.updateChild }); 
-        // check browser capabilities  
         if( window.File && window.FileReader && window.FileList && window.Blob ){
             var reader = new FileReader();
             var file = document.querySelector('input[type=file]').files[0];

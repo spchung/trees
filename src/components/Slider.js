@@ -14,13 +14,13 @@ const StyledSlider = styled.div`
 `;
 
 const StyledThumb = styled.div`
-  width: 10px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   border-radius: 3px;
   position: relative;
-  top: -5px;
+  top: -3px;
   opacity: 0.5;
-  background: #823eb7;
+  background: #33ff99;
   cursor: pointer;
 `;
 
