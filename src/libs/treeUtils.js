@@ -3,7 +3,6 @@ function TreeUtils(){
     var treeString="empty";
     var TREEROOT;
     var SPNAMES=[];
-    var maxNameLength=0; 
     var initX=40;
     var initY=15; 
     var scaleFactor=50;
@@ -20,6 +19,8 @@ function TreeUtils(){
 
     this.tallestTreeScale=false;
     this.useCladogram=false;
+    this.maxNameLength=0; 
+
 
     //hidden from class
     function Node(data, left, right, father){
@@ -88,7 +89,7 @@ function TreeUtils(){
 
     this.printNames = (nameArray, context) => {
         let currX=initX+spaceFactor;
-        let cY=initY+maxNameLength -12;
+        let cY=initY+this.maxNameLength -12;
 
         for (let i=0; i<nameArray.length;i++){
             context.textAlign='start';
@@ -107,29 +108,30 @@ function TreeUtils(){
             if(node === null){
                 return; 
             }
-            if(node.left != null){
+            if(node.left !== null){
                 this.postOrder(node.left, context, false);
             }
-            if(node.right != null){
+            if(node.right !== null){
                 this.postOrder(node.right, context, false);
             } 
             if((node.left == null)&&(node.right == null)){
+                // drawing the tips of the tree 
                 space+=spaceFactor;
                 node.space=space;
-                this.makeEdge(node.space+initX,node.height*heightFactor+initY+maxNameLength,node.father.height*heightFactor+initY+maxNameLength,context);
+                this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.father.height*heightFactor+initY+this.maxNameLength,context);
             }
             else {
                 node.space = (node.left.space + node.right.space)/2;
                 context.lineWidth = 2;
                 context.lineJoin = 'round';
                 context.beginPath();
-                context.moveTo(node.left.space+initX,node.height*heightFactor+initY+maxNameLength);
-                context.lineTo(node.right.space+initX,node.height*heightFactor+initY+maxNameLength);
+                context.moveTo(node.left.space+initX,node.height*heightFactor+initY+this.maxNameLength);
+                context.lineTo(node.right.space+initX,node.height*heightFactor+initY+this.maxNameLength);
                 context.stroke();
                 if(node.father != null){
                     // var y1=node.right.height*heightFactor+initY+maxNameLength;
                     // var y2=node.height*heightFactor+initY+maxNameLength;
-                    this.makeEdge(node.space+initX,node.height*heightFactor+initY+maxNameLength,node.father.height*heightFactor+initY+maxNameLength,context);
+                    this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.father.height*heightFactor+initY+this.maxNameLength,context);
                 }
             }
         }
@@ -143,22 +145,27 @@ function TreeUtils(){
             if(node.right != null){
                 this.postOrder(node.right, context, true);
             }
-            if((node.left == null)&&(node.right == null)){
+            if((node.left === null)&&(node.right === null)){
+                // drawing the tips of the tree 
                 space+=spaceFactor;
                 node.space=space;
                 // var y2=node.height*heightFactor+initY+maxNameLength;
-                this.makeEdge(node.space+initX,initY+maxNameLength,node.height*heightFactor+initY+maxNameLength,context);
+                // this.makeEdge(50,200,500,context);
+                // console.log("nodeSpace: ", node.space, "initX: ", initX, "initY: ", initY, "MaxNameLen: ", this.maxNameLength, "nodeeight: ", node.height, "HeightFactor: ", heightFactor);
+                // this.makeEdge(264,45,450, context);
+                this.makeEdge(node.space+initX,initY+this.maxNameLength,node.height*heightFactor+initY+this.maxNameLength,context);
             }
             else {
                 node.space = (node.left.space + node.right.space)/2;
                 context.lineWidth = 2;
                 context.lineJoin = 'round';
                 context.beginPath();
-                context.moveTo(node.left.space+initX,node.right.height*heightFactor+initY+maxNameLength);
-                context.lineTo(node.right.space+initX,node.right.height*heightFactor+initY+maxNameLength);
+                context.moveTo(node.left.space+initX,node.right.height*heightFactor+initY+this.maxNameLength);
+                context.lineTo(node.right.space+initX,node.right.height*heightFactor+initY+this.maxNameLength);
                 context.stroke();
                 if(node.father != null){
-                    this.makeEdge(node.space+initX,node.right.height*heightFactor+initY+maxNameLength,node.height*heightFactor+initY+maxNameLength,context);
+                    // this.makeEdge(100,200,500,context);
+                    this.makeEdge(node.space+initX,node.right.height*heightFactor+initY+this.maxNameLength,node.height*heightFactor+initY+this.maxNameLength,context);
 
                 }
             }
@@ -167,33 +174,38 @@ function TreeUtils(){
 
     this.drawOneTree = (value,treeVec,useCladogram,canvas,context,tallestTreeScale,hF) => {   
         if(value < treeVec.length){
-            // 1
-            if(!useCladogram)
-            this.treeFromNewick(treeVec[value],true);
-            else
-            this.treeFromNewick(treeVec[value],false);
+            // 1 - make trees
+            if(!useCladogram){
+                this.treeFromNewick(treeVec[value],true, context);
+            }
+            else{
+                this.treeFromNewick(treeVec[value],false, context);
+            }
         
             // 2
             spaceFactor = (canvas.width-initX)*0.9/SPNAMES.length;
             space=0;
             if(!useCladogram){
                 if(tallestTreeScale){
+
                     heightFactor=hF/maxHeight;
+
                 }
                 else{
                     heightFactor=hF/TREEROOT.left.height;
+
                 }
             }
-        
-            else{
+            else {
                 heightFactor=hF/TREEROOT.height;
+
             }
             // draw scale bar at left
             // if(value==0)
             if(!useCladogram){
                 scaleBar=30.0/heightFactor;
-                this.makeEdge(initX-40,initY+maxNameLength,initY+maxNameLength+scaleBar*heightFactor,context)
-                context.fillText(scaleBar.toPrecision(1),initX-35,initY+maxNameLength+scaleBar*heightFactor);
+                this.makeEdge(initX-40,initY+this.maxNameLength,initY+this.maxNameLength+scaleBar*heightFactor,context)
+                context.fillText(scaleBar.toPrecision(1),initX-35,initY+this.maxNameLength+scaleBar*heightFactor);
             }
         
             context.font = "italic bold 16px serif";
@@ -207,13 +219,13 @@ function TreeUtils(){
         }
     }
 
-    this.treeFromNewick = (newickString,brLen) => {
+    this.treeFromNewick = (newickString,brLen,ctx) => {
         if(!brLen){
             let height = newickString.match(/(\,)/g).length;
             // overwrite input string 
             newickString = newickString.replace(/(#\d+\.\d+)|(\d+\.\d+)/g,"").replace(/e-\d+/g,"").replace(/:/g,"");
             SPNAMES = newickString.match(/(?=\D)(\w+)/g);
-            this.getMaxLenSN(SPNAMES);
+            this.getMaxLenSN(SPNAMES, ctx);
             let newick = newickString.match(/(\w+)|(\()|(\))|(\,)/g);
             let n = new Node("root", null, null,null,null,height);
             TREEROOT = n;
@@ -253,7 +265,7 @@ function TreeUtils(){
 
         else if(brLen){
             SPNAMES = newickString.replace(/(#\d+\.\d+)|(\d+\.\d+)/g,"").replace(/e-\d+/g,"").replace(/:/g,"").match(/(?=\D)(\w+)/g);
-            this.getMaxLenSN(SPNAMES);
+            this.getMaxLenSN(SPNAMES, ctx);
             newickString=newickString.replace(/(#\d+\.\d+)([eE](\+|-)?[0-9]+)/g,"").replace(/:/g,"");
             let newick=newickString.match(/((\+|-)?([0-9]+\.[0-9]*|\.[0-9]+)([eE](\+|-)?[0-9]+)?)|(\w+)|(\()|(\))|(\,)/g); 
             let n = new Node("root", null, null,null,null,null);
@@ -303,15 +315,15 @@ function TreeUtils(){
     this.getMaxLenSN = (sN, context) => {
         let mLen = 0;
         let iD = 0;
-        for(let i=0; i<sN; i++){
+
+        for(let i=0; i<sN.length; i++){
             if(sN[i].length > mLen){
                 mLen = sN[i].length;
                 iD = i;
             }
             context.font = "italic bold 16px serif";
-            maxNameLength=context.measureText(sN[iD]).width;
+            this.maxNameLength=context.measureText(sN[iD]).width;
         }
-
     }
 }
     
