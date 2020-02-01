@@ -1,20 +1,20 @@
 /* eslint-disable no-lone-blocks */
 function TreeUtils(){
-    var treeString="empty";
+    // var treeString="empty";
     var TREEROOT;
     var SPNAMES=[];
     var initX=40;
     var initY=15; 
-    var scaleFactor=50;
+    // var scaleFactor=50;
     var spaceFactor=50
     var heightFactor=100;
-    var heightToSpaceFactor=1;
+    // var heightToSpaceFactor=1;
     var space=0;
-    var treeVec = [];
-    var aString="";
-    var treePos="";
+    // var treeVec = [];
+    // var aString="";
+    // var treePos="";
     var maxHeight=0; 
-    var value=0;
+    // var value=0;
     var scaleBar=0.0;
 
     this.tallestTreeScale=false;
@@ -30,6 +30,7 @@ function TreeUtils(){
         this.father = father;
         this.space = 0;
         this.height = 0; 
+        this.theta=0;
         // this.show = show;
     }
 
@@ -118,6 +119,7 @@ function TreeUtils(){
                 // drawing the tips of the tree 
                 space+=spaceFactor;
                 node.space=space;
+                // this.printTheta( node.space+initX, node.right.height*heightFactor+initY+this.maxNameLength, node.theta, context );
                 this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.father.height*heightFactor+initY+this.maxNameLength,context);
             }
             else {
@@ -131,6 +133,7 @@ function TreeUtils(){
                 if(node.father != null){
                     // var y1=node.right.height*heightFactor+initY+maxNameLength;
                     // var y2=node.height*heightFactor+initY+maxNameLength;
+                    this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.theta,context);
                     this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.father.height*heightFactor+initY+this.maxNameLength,context);
                 }
             }
@@ -153,7 +156,8 @@ function TreeUtils(){
                 // this.makeEdge(50,200,500,context);
                 // console.log("nodeSpace: ", node.space, "initX: ", initX, "initY: ", initY, "MaxNameLen: ", this.maxNameLength, "nodeeight: ", node.height, "HeightFactor: ", heightFactor);
                 // this.makeEdge(264,45,450, context);
-                this.makeEdge(node.space+initX,initY+this.maxNameLength,node.height*heightFactor+initY+this.maxNameLength,context);
+                // this.printTheta( node.space+initX, initY+this.maxNameLength, node.theta, context);
+                this.makeEdge( node.space+initX, initY+this.maxNameLength, node.height*heightFactor+initY+this.maxNameLength, context);
             }
             else {
                 node.space = (node.left.space + node.right.space)/2;
@@ -165,8 +169,9 @@ function TreeUtils(){
                 context.stroke();
                 if(node.father != null){
                     // this.makeEdge(100,200,500,context);
+                    // this.printTheta(node.space+initX, node.right.height*heightFactor+initY+this.maxNameLength, node.theta, context );
+                    // node.space+initX,node.right.height*heightFactor+initY+this.maxNameLength,node.height*heightFactor+initY+this.maxNameLength,context
                     this.makeEdge(node.space+initX,node.right.height*heightFactor+initY+this.maxNameLength,node.height*heightFactor+initY+this.maxNameLength,context);
-
                 }
             }
         }
@@ -187,24 +192,21 @@ function TreeUtils(){
             space=0;
             if(!useCladogram){
                 if(tallestTreeScale){
-
                     heightFactor=hF/maxHeight;
 
                 }
                 else{
                     heightFactor=hF/TREEROOT.left.height;
-
                 }
             }
             else {
                 heightFactor=hF/TREEROOT.height;
-
             }
             // draw scale bar at left
             // if(value==0)
             if(!useCladogram){
                 scaleBar=30.0/heightFactor;
-                this.makeEdge(initX-40,initY+this.maxNameLength,initY+this.maxNameLength+scaleBar*heightFactor,context)
+                this.makeEdge(initX-40,initY+this.maxNameLength,initY+this.maxNameLength+scaleBar*heightFactor,context);
                 context.fillText(scaleBar.toPrecision(1),initX-35,initY+this.maxNameLength+scaleBar*heightFactor);
             }
         
@@ -219,7 +221,17 @@ function TreeUtils(){
         }
     }
 
+    this.printTheta = (x,y,message,context) =>{
+        context.textAlign='start';
+        context.textBaseline='middle';
+        context.save();
+        context.translate(x-70,y+15);
+        context.fillText(message,0,0);
+        context.restore();
+    } 
+
     this.treeFromNewick = (newickString,brLen,ctx) => {
+        // var pounds;
         if(!brLen){
             let height = newickString.match(/(\,)/g).length;
             // overwrite input string 
@@ -257,6 +269,7 @@ function TreeUtils(){
                     default:
                             current.data = newick[pos];
                             current.height = 0;
+                            // current.theta = 69;
                         break;
                     }
 	        }
@@ -302,6 +315,7 @@ function TreeUtils(){
                         if(newick[pos].match(/(\+|-)?([0-9]+\.[0-9]*|\.[0-9]+)([eE](\+|-)?[0-9]+)?/) != null){
                             current.data = newick[pos];
                             current.height = parseFloat(newick[pos])+cumY;
+                            // current.theta = 96;
                         }
                         else{
                             cumY=0.0;

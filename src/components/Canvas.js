@@ -49,7 +49,6 @@ class Canvas extends React.Component{
             this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
             this.init();
         }
-        // this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
 
         // update utils gloabl vars -> maybe there is a ore elegant way to do this 
         this.utils.tallestTreeScale = this.state.RelScaling;
@@ -84,22 +83,10 @@ class Canvas extends React.Component{
         this.utils.drawOneTree(index,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
     }
 
-    /////////////////////////////// TEST Functions ////////////////////////////////////////
-    // draw = () => {
-    //     this.ctx.lineWidth = 3;
-    //     this.ctx.lineJoin = 'round';
-    //     this.ctx.beginPath();
-    //     this.ctx.moveTo(50,50);
-    //     this.ctx.lineTo(1000,50);
-    //     this.ctx.stroke();
-    // }
-
-
     render(){
         return(
             <div style={{marginLeft:30, marginTop:15, marginRight:30}}>
                 <canvas ref="canvas" width={window.innerWidth} height={(window.innerHeight*0.8)} />
-                {/* <button onClick = {this.draw}>X</button> */}
                 <Slider
                     initial={0}
                     max={this.state.treeVec.length} // use length of vector 

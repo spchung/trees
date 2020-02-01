@@ -69,8 +69,8 @@ const Slider = ({
     const newPercentage = getPercentage(newX, end);
     const newValue = getValue(newPercentage, max);
 
-    thumbRef.current.style.left = getLeft(newPercentage);
-    currentRef.current.textContent = formatFn(newValue);
+    thumbRef.current.style.left = getLeft(Math.round(newPercentage));
+    currentRef.current.textContent = formatFn(Math.round(newValue));
 
     onChange(newValue);
   };
