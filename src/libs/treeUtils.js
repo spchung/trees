@@ -119,8 +119,8 @@ function TreeUtils(){
                 // drawing the tips of the tree 
                 space+=spaceFactor;
                 node.space=space;
-                // this.printTheta( node.space+initX, node.right.height*heightFactor+initY+this.maxNameLength, node.theta, context );
-                this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.father.height*heightFactor+initY+this.maxNameLength,context);
+                this.printTheta( node.space+initX, node.height*heightFactor+initY+this.maxNameLength, node.theta, context );
+                this.makeEdge(node.space+initX, node.height*heightFactor+initY+this.maxNameLength,node.father.height*heightFactor+initY+this.maxNameLength,context);
             }
             else {
                 node.space = (node.left.space + node.right.space)/2;
@@ -133,7 +133,8 @@ function TreeUtils(){
                 if(node.father != null){
                     // var y1=node.right.height*heightFactor+initY+maxNameLength;
                     // var y2=node.height*heightFactor+initY+maxNameLength;
-                    this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.theta,context);
+                    // this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.theta,context);
+                    this.printTheta(node.space+initX,node.height*heightFactor+initY+this.maxNameLength, node.theta, context); 
                     this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.father.height*heightFactor+initY+this.maxNameLength,context);
                 }
             }
@@ -235,10 +236,14 @@ function TreeUtils(){
         if(!brLen){
             let height = newickString.match(/(\,)/g).length;
             // overwrite input string 
-            newickString = newickString.replace(/(#\d+\.\d+)|(\d+\.\d+)/g,"").replace(/e-\d+/g,"").replace(/:/g,"");
+            // newickString = newickString.replace(/(#\d+\.\d+)|(\d+\.\d+)/g,"").replace(/e-\d+/g,"").replace(/:/g,"");
+            newickString = newickString.replace(/e-\d+/g,"").replace(/:/g,"");
             SPNAMES = newickString.match(/(?=\D)(\w+)/g);
             this.getMaxLenSN(SPNAMES, ctx);
-            let newick = newickString.match(/(\w+)|(\()|(\))|(\,)/g);
+            // let newick = newickString.match(/(\w+)|(\()|(\))|(\,)/g);
+            let newick = newickString.match(/([A-Z]+)|(\()|(\))|(\,)|([#]\d+\.\d+)/g);
+            console.log(newick)
+
             let n = new Node("root", null, null,null,null,height);
             TREEROOT = n;
             let current = TREEROOT;
@@ -247,6 +252,7 @@ function TreeUtils(){
                 if((newick[pos] === "(")||(newick[pos]===",")){
                     n = new Node("empty", null, null,null,null,null);
                 }
+
                 switch(newick[pos]) {
                     case "(":
                         // up left
@@ -267,11 +273,19 @@ function TreeUtils(){
                             current.height=Math.max(current.right.height,current.left.height)+1;
                         break;
                     default:
+                        if(newick[pos].match(/([#]\d+\.\d+)/g)){
+                            current.theta = newick[pos]
+                            // console.log("theta")
+                        }
+                        else{
                             current.data = newick[pos];
                             current.height = 0;
-                            // current.theta = 69;
+                        }
                         break;
                     }
+                // if(newick[pos][0]==="#"){
+                //     console.log("666");
+                // }
 	        }
 	        TREEROOT.height=Math.max(current.right.height,current.left.height)+1;
         }
@@ -289,6 +303,31 @@ function TreeUtils(){
                 if(newick[pos] !== ")"){
                     n = new Node("empty", null, null,null,null,null);
                 }
+                // if(newick[pos]==="("){
+                //     current.left = n;
+                //     n.father = current;
+                //     current = n;
+                //     break;
+                // }
+                // if(newick[pos]===","){
+                //     current = current.father;
+                //     current.right=n;
+                //     n.father = current;
+                //     current = n;
+                //     break;
+                // }
+                // if(newick[pos]===")"){
+                //     current = current.father;
+                //     current.height=Math.max(current.right.height,current.left.height)+1;
+                //     break;
+                // }
+                // if(newick[pos][0]==="#"){
+                //     console.log("henlo");
+                // }
+                // else{
+                //     current.data = newick[pos];
+                //     current.height = 0;
+                // }
                 switch(newick[pos]) {
                     case "(":
                         // up left
