@@ -74,10 +74,6 @@ function TreeUtils(){
         return blsum;
     }
 
-    this.makeTrees = () => {
-
-    }
-
     //context === this.ctx
     this.makeEdge = (x,y,z,context) => {
         context.lineWidth = 3;
@@ -134,8 +130,12 @@ function TreeUtils(){
                     // var y1=node.right.height*heightFactor+initY+maxNameLength;
                     // var y2=node.height*heightFactor+initY+maxNameLength;
                     // this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.theta,context);
-                    this.printTheta(node.space+initX,node.height*heightFactor+initY+this.maxNameLength, node.theta, context); 
+                    this.printTheta(node.space+initX,node.height*heightFactor+initY+this.maxNameLength, node.theta, context)
                     this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.father.height*heightFactor+initY+this.maxNameLength,context);
+                }
+                else{
+                    console.log(node.theta);
+                    this.drawRootTheta(node, context, node.theta, true);
                 }
             }
         }
@@ -157,7 +157,7 @@ function TreeUtils(){
                 // this.makeEdge(50,200,500,context);
                 // console.log("nodeSpace: ", node.space, "initX: ", initX, "initY: ", initY, "MaxNameLen: ", this.maxNameLength, "nodeeight: ", node.height, "HeightFactor: ", heightFactor);
                 // this.makeEdge(264,45,450, context);
-                // this.printTheta( node.space+initX, initY+this.maxNameLength, node.theta, context);
+                this.printTheta( node.space+initX, initY+this.maxNameLength, node.theta, context);
                 this.makeEdge( node.space+initX, initY+this.maxNameLength, node.height*heightFactor+initY+this.maxNameLength, context);
             }
             else {
@@ -170,9 +170,12 @@ function TreeUtils(){
                 context.stroke();
                 if(node.father != null){
                     // this.makeEdge(100,200,500,context);
-                    // this.printTheta(node.space+initX, node.right.height*heightFactor+initY+this.maxNameLength, node.theta, context );
+                    this.printTheta(node.space+initX, node.right.height*heightFactor+initY+this.maxNameLength, node.theta, context );
                     // node.space+initX,node.right.height*heightFactor+initY+this.maxNameLength,node.height*heightFactor+initY+this.maxNameLength,context
                     this.makeEdge(node.space+initX,node.right.height*heightFactor+initY+this.maxNameLength,node.height*heightFactor+initY+this.maxNameLength,context);
+                }
+                else{
+                    this.drawRootTheta(node, context, node.theta, false);
                 }
             }
         }
@@ -222,13 +225,45 @@ function TreeUtils(){
         }
     }
 
+    this.drawRootTheta = (node, context, message, clado) => {
+        if(message){
+            if(!clado){
+                let x = (node.left.space+node.right.space)/2+initX;
+                let y = node.right.height*heightFactor+initY+this.maxNameLength;
+                context.save();
+                context.translate(x,y+10);
+                message = message.replace(/[#]/,"");
+                context.fillText(message,0,0);
+                context.restore();
+            }
+            else{
+                let x = (node.left.space+node.right.space)/2+initX;
+                let y = node.height*heightFactor+initY+this.maxNameLength
+                context.save();
+                context.translate(x,y+10);
+                message = message.replace(/[#]/,"");
+                context.fillText(message,0,0);
+                context.restore()
+            }
+        }
+        else{
+            console.log("bad");
+        }
+    }
+
     this.printTheta = (x,y,message,context) =>{
-        context.textAlign='start';
-        context.textBaseline='middle';
-        context.save();
-        context.translate(x-70,y+15);
-        context.fillText(message,0,0);
-        context.restore();
+        if(message){
+            context.textAlign='start';
+            context.textBaseline='middle';
+            context.save();
+            context.translate(x-70,y+15);
+            message = message.replace(/[#]/,"");
+            context.fillText(message,0,0);
+            context.restore();
+        }
+        else{
+            console.log("bad");
+        }
     } 
 
     this.treeFromNewick = (newickString,brLen,ctx) => {
@@ -241,8 +276,7 @@ function TreeUtils(){
             SPNAMES = newickString.match(/(?=\D)(\w+)/g);
             this.getMaxLenSN(SPNAMES, ctx);
             // let newick = newickString.match(/(\w+)|(\()|(\))|(\,)/g);
-            let newick = newickString.match(/([A-Z]+)|(\()|(\))|(\,)|([#]\d+\.\d+)/g);
-            console.log(newick)
+            let newick = newickString.match(/([A-Za-z]+)|(\()|(\))|(\,)|([#]\d+\.\d+)/g);
 
             let n = new Node("root", null, null,null,null,height);
             TREEROOT = n;
@@ -274,7 +308,7 @@ function TreeUtils(){
                         break;
                     default:
                         if(newick[pos].match(/([#]\d+\.\d+)/g)){
-                            current.theta = newick[pos]
+                            current.theta = newick[pos];
                             // console.log("theta")
                         }
                         else{
@@ -283,9 +317,6 @@ function TreeUtils(){
                         }
                         break;
                     }
-                // if(newick[pos][0]==="#"){
-                //     console.log("666");
-                // }
 	        }
 	        TREEROOT.height=Math.max(current.right.height,current.left.height)+1;
         }
@@ -293,8 +324,8 @@ function TreeUtils(){
         else if(brLen){
             SPNAMES = newickString.replace(/(#\d+\.\d+)|(\d+\.\d+)/g,"").replace(/e-\d+/g,"").replace(/:/g,"").match(/(?=\D)(\w+)/g);
             this.getMaxLenSN(SPNAMES, ctx);
-            newickString=newickString.replace(/(#\d+\.\d+)([eE](\+|-)?[0-9]+)/g,"").replace(/:/g,"");
-            let newick=newickString.match(/((\+|-)?([0-9]+\.[0-9]*|\.[0-9]+)([eE](\+|-)?[0-9]+)?)|(\w+)|(\()|(\))|(\,)/g); 
+            newickString=newickString.replace(/e-\d+/g,"").replace(/:/g,"");
+            let newick=newickString.match(/((\+|-)?([0-9]+\.[0-9]*|\.[0-9]+)([eE](\+|-)?[0-9]+)?)|(\w+)|(\()|(\))|(\,)|([#]\d+\.\d+)/g); 
             let n = new Node("root", null, null,null,null,null);
             TREEROOT = n;
             let current = TREEROOT;
@@ -303,31 +334,6 @@ function TreeUtils(){
                 if(newick[pos] !== ")"){
                     n = new Node("empty", null, null,null,null,null);
                 }
-                // if(newick[pos]==="("){
-                //     current.left = n;
-                //     n.father = current;
-                //     current = n;
-                //     break;
-                // }
-                // if(newick[pos]===","){
-                //     current = current.father;
-                //     current.right=n;
-                //     n.father = current;
-                //     current = n;
-                //     break;
-                // }
-                // if(newick[pos]===")"){
-                //     current = current.father;
-                //     current.height=Math.max(current.right.height,current.left.height)+1;
-                //     break;
-                // }
-                // if(newick[pos][0]==="#"){
-                //     console.log("henlo");
-                // }
-                // else{
-                //     current.data = newick[pos];
-                //     current.height = 0;
-                // }
                 switch(newick[pos]) {
                     case "(":
                         // up left
@@ -351,10 +357,13 @@ function TreeUtils(){
                         // at end
                         break;
                     default:
-                        if(newick[pos].match(/(\+|-)?([0-9]+\.[0-9]*|\.[0-9]+)([eE](\+|-)?[0-9]+)?/) != null){
+                        if( (newick[pos].match(/(\+|-)?([0-9]+\.[0-9]*|\.[0-9]+)([eE](\+|-)?[0-9]+)?/) !=null) && (newick[pos].match(/([#]\d+\.\d+)/) == null) ) {
                             current.data = newick[pos];
                             current.height = parseFloat(newick[pos])+cumY;
                             // current.theta = 96;
+                        }
+                        else if(newick[pos].match(/([#]\d+\.\d+)/)){
+                            current.theta = newick[pos];
                         }
                         else{
                             cumY=0.0;

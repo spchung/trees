@@ -28,6 +28,7 @@ class Home extends React.Component{
                     });
                 }
                 reader.readAsText(file);
+                // console.log("henlo");
             }
             else {
                 alert("Upload was not a .txt file");
@@ -36,6 +37,11 @@ class Home extends React.Component{
         else {
             alert("Your browswer is too old for HTML5 file uploads. Please update.");
         }
+    }
+    
+    componentDidUpdate(){
+        console.log("on change");
+        this.varifyInputFile(this.state.trees);
     }
 
     handleRelScalingChange = (ev)=> {
@@ -48,6 +54,31 @@ class Home extends React.Component{
         this.setState({
             Cladogram : ev.target.checked
         });
+    }
+
+    varifyInputFile = (inputVect) => {
+        if(this.state.uploaded){
+            for(let i = 0; i < inputVect.length-1; i++){
+                let string = inputVect[i].replace(/(\s[#]\d+\.\d+)/g, "");
+    
+                //1. paranthesis test 
+                if( string.match(/(\()/g).length !== string.match(/(\))/g).length ){
+                    console.log("failed parenthesis test");
+                }
+                
+                //2. comma to species name check
+                if( string.match(/(?=\D)(\w+)/g).length !== (string.match(/,/g).length +1) ){
+                    console.log("failed comma test");
+                }
+    
+                //3. species name and branchlength test 
+                if( string.match(/(?=\D)(\w+)/g).length !== string.match(/(?=\D)(\w+)(\:\s\d+\.\d+)/g).length ){
+                    console.log(string.match(/(?=\D)(\w+)/g).length);
+                    console.log(string.match(/(?=\D)(\w+)(\:\s\d+\.\d+)/g).length);
+                    console.log("failed species name to brleng test");
+                }
+            }
+        }
     }
 
 
