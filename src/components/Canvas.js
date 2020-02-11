@@ -20,6 +20,7 @@ class Canvas extends React.Component{
         this.TreeOfTrees = " ";
         this.currentTree = 0;
         this.utils = new TreeUtils(); // make a global 
+        this.DisplayIndex = false;
     }
     // update local state from props changes 
     static getDerivedStateFromProps(props, state) {
@@ -60,7 +61,6 @@ class Canvas extends React.Component{
         if(this.state.treeVec[this.state.treeVec.length-2].match(";")===null){
             this.treeVec.pop();
         }
-
         // Draw first tree  
         let noTr = this.state.treeVec.length-2;
         this.utils.getMaxHeight(noTr, this.state.treeVec);
@@ -83,6 +83,29 @@ class Canvas extends React.Component{
         this.utils.drawOneTree(index,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
     }
 
+    // swap tree children 
+    swapBranch = () => {
+        // phase 1 -> swap root children
+        this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
+        this.utils.swapAndDraw(this.currentTree, this.state.treeVec, this.state.Cladogram, this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
+        // this.utils.drawOneTree(this.currentTree, this.state.treeVec, this.state.Cladogram, this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength );
+
+    }
+
+    display = () => {
+        this.DisplayIndex = !this.DisplayIndex;
+        this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
+        this.utils.drawOneTree(this.currentTree,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
+        if(this.DisplayIndex){
+            if(this.state.Cladogram){
+                this.utils.display(false, this.ctx);
+            }
+            else if(this.state.RelScaling){
+                this.utils.display(true, this.ctx);
+            }
+        } 
+    }
+
     render(){
         return(
             <div style={{marginLeft:30, marginTop:15, marginRight:30}}>
@@ -93,6 +116,7 @@ class Canvas extends React.Component{
                     formatFn={number => number.toFixed(2)}
                     onChange={value => this.swapTree(value)} // round value to get index for treeVect
                 />
+                <button onClick={this.display}>X</button>
             </div>
         )
     }
