@@ -45,7 +45,7 @@ const Slider = ({
   const thumbRef = React.useRef();
   const currentRef = React.useRef();
 
-  const diff = React.useRef();
+  const diff = React.useRef(null);
 
   const handleMouseMove = event => {
     let newX =

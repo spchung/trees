@@ -36,7 +36,7 @@ function TreeUtils(){
         this.circle = new Circle();
         // this.show = show;
     }
-
+    // Add On circle class //
     function Circle(){
         this.id = 0;
         this.x = 0;
@@ -83,7 +83,6 @@ function TreeUtils(){
         return blsum;
     }
 
-    //context === this.ctx
     this.makeEdge = (x,y,z,context) => {
         context.lineWidth = 3;
         context.lineJoin = 'round';
@@ -225,7 +224,6 @@ function TreeUtils(){
                 heightFactor=hF/TREEROOT.height;
             }
             // draw scale bar at left
-            // if(value==0)
             if(!useCladogram){
                 scaleBar=30.0/heightFactor;
                 this.makeEdge(initX-40,initY+this.maxNameLength,initY+this.maxNameLength+scaleBar*heightFactor,context); // vertical side bar 
@@ -248,11 +246,9 @@ function TreeUtils(){
         if(!brLen){
             let height = newickString.match(/(\,)/g).length;
             // overwrite input string 
-            // newickString = newickString.replace(/(#\d+\.\d+)|(\d+\.\d+)/g,"").replace(/e-\d+/g,"").replace(/:/g,"");
             newickString = newickString.replace(/e-\d+/g,"").replace(/:/g,"");
             SPNAMES = newickString.match(/(?=\D)(\w+)/g);
             this.getMaxLenSN(SPNAMES, ctx);
-            // let newick = newickString.match(/(\w+)|(\()|(\))|(\,)/g);
             let newick = newickString.match(/([A-Za-z]+)|(\()|(\))|(\,)|([#]\d+\.\d+)/g);
 
             let n = new Node("root", null, null, null);
@@ -260,13 +256,9 @@ function TreeUtils(){
             TREEROOT = n;
             let current = TREEROOT;
             current.height=0;
-            // node index -> for swapping 
-            // let indexer = new Indexer();
-            // indexer.assign(TREEROOT); // init index for root 
             for(let pos = 0; pos < newick.length; pos++){
                 if((newick[pos] === "(")||(newick[pos]===",")){
                     n = new Node("empty", null, null, null);
-                    // indexer.assign(n); // assign index to all new nodes 
                 }
                 switch(newick[pos]) {
                     case "(":
@@ -299,7 +291,6 @@ function TreeUtils(){
                         break;
                     }
                 orderTag+=1;
-                // console.log(orderTag);
 	        }
 	        TREEROOT.height=Math.max(current.right.height,current.left.height)+1;
         }
@@ -312,14 +303,9 @@ function TreeUtils(){
             TREEROOT = n;
             let current = TREEROOT;
             let cumY=0.0;
-            // node index 
-            // let indexer = new Indexer();
-            // indexer.assign(TREEROOT); // init index for root 
             for(let pos = 0; pos < newick.length; pos++){
-                // if(newick[pos] !== ")"){
                 if((newick[pos] === "(")||(newick[pos]===",")){
                     n = new Node("empty", null, null, null, null, null, null);
-                    // indexer.assign(n);
                 }
                 switch(newick[pos]) {
                     case "(":
@@ -327,7 +313,6 @@ function TreeUtils(){
                         current.left = n;
                         n.father = current;
                         current = n;
-                        // orderTag+=1;
                         break;
                     case ",":
                         // back then right
@@ -335,13 +320,11 @@ function TreeUtils(){
                         current.right=n;
                         n.father = current;
                         current = n;
-                        // orderTag+=1;
                         break;
                     case ")":
                         // back
                         cumY = current.height;
                         current = current.father;
-                        // orderTag+=1;
                         break;
                     case ";":
                         // at end
@@ -349,14 +332,10 @@ function TreeUtils(){
                     default:
                         current.order = orderTag;
                         if( (newick[pos].match(/(\+|-)?([0-9]+\.[0-9]*|\.[0-9]+)([eE](\+|-)?[0-9]+)?/) !=null) && (newick[pos].match(/([#]\d+\.\d+)/) == null) ) {
-                            // current.data = newick[pos];
                             current.height = parseFloat(newick[pos])+cumY;
-                            // current.theta = 96;
                         }
                         else if(newick[pos].match(/([#]\d+\.\d+)/)){
                             current.theta = newick[pos];
-                            // current.order = orderTag;
-                            // console.log(current.order)
                         }
                         else{
                             current.data = newick[pos];
@@ -452,7 +431,7 @@ function TreeUtils(){
     }
 
     //DISPLAY Index 
-    this.display = (brLen, context) =>{
+    this.displayIndex = (brLen, context) =>{
         if(this.circles.length === 0){
             if(TREEROOT){
                 var indexer = new Indexer();

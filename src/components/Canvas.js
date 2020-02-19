@@ -1,5 +1,6 @@
 import React from 'react'
 import Slider from './Slider';
+import jsPDF from 'jspdf';
 // import TreeUtils from '../libs/treeUtils'
 
 var TreeUtils = require('../libs/treeUtils');
@@ -38,25 +39,23 @@ class Canvas extends React.Component{
         window.addEventListener('resize', this.onWindowResize, false); 
         this.canvas.addEventListener('click', (e)=> {
             if(this.utils.circles.length > 0){
-                // console.log("has circles");
                 const pos = {
                     x: e.clientX-this.ctx.canvas.offsetLeft,
                     y: e.clientY-this.ctx.canvas.offsetTop
                 }
                 this.utils.circles.forEach( circle => {
-                    // console.log(this.IntersectWithCircle(pos, circle));
                     if(this.IntersectWithCircle(pos, circle)){
                         this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
                         this.utils.swapNodes(circle.id, this.state.Cladogram, this.canvas, this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
                         if(this.DisplayIndex){
                             if(this.state.Cladogram){
-                                this.utils.display(false, this.ctx);
+                                this.utils.displayIndex(false, this.ctx);
                             }
                             else if(this.state.RelScaling){
-                                this.utils.display(true, this.ctx);
+                                this.utils.displayIndex(true, this.ctx);
                             }
                             else{
-                                this.utils.display(true, this.ctx);
+                                this.utils.displayIndex(true, this.ctx);
                             }
                         }
                     }
@@ -106,16 +105,16 @@ class Canvas extends React.Component{
         this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
         // this.utils.drawOneTree(this.currentTree,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
         // need function to redraw tree instead
-        this.utils.redrawCurrentTree(this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
+        this.utils.redrawCurrentTree(this.state.Cladogram,this.canvas, this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
         if(this.DisplayIndex){
             if(this.state.Cladogram){
-                this.utils.display(false, this.ctx);
+                this.utils.displayIndex(false, this.ctx);
             }
             else if(this.state.RelScaling){
-                this.utils.display(true, this.ctx);
+                this.utils.displayIndex(true, this.ctx);
             }
             else{
-                this.utils.display(true, this.ctx);
+                this.utils.displayIndex(true, this.ctx);
             }
         }
     }
@@ -137,20 +136,31 @@ class Canvas extends React.Component{
         this.utils.redrawCurrentTree(this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
         if(this.DisplayIndex){
             if(this.state.Cladogram){
-                this.utils.display(false, this.ctx);
+                this.utils.displayIndex(false, this.ctx);
             }
             else if(this.state.RelScaling){
-                this.utils.display(true, this.ctx);
+                this.utils.displayIndex(true, this.ctx);
             }
             else{
-                this.utils.display(true, this.ctx);
+                this.utils.displayIndex(true, this.ctx);
             }
         } 
     }
 
+    saveAsPDF = () => {
+        // clear node circles from canvas 
+        if(this.DisplayIndex){
+            this.toggleIndexDisplay();
+        }
+        var imgData = this.canvas.toDataURL();
+        var pdf = new jsPDF();
+        pdf.addImage(imgData, 'JPEG', 10, -150, 300, 150, null, null, -90);
+        pdf.save("download.pdf");
+    }
+
     render(){
         return(
-            <div style={{marginLeft:30, marginTop:15, marginRight:30}}>
+            <div>
                 <canvas ref="canvas" width={window.innerWidth} height={(window.innerHeight*0.8)} />
                 <Slider
                     initial={0}
@@ -159,6 +169,7 @@ class Canvas extends React.Component{
                     onChange={value => this.swapTree(value)} // round value to get index for treeVect
                 />
                 <button onClick={this.toggleIndexDisplay}>Display Node ID</button>
+                <button onClick={this.saveAsPDF}>Save as PDF</button>
             </div>
         )
     }
