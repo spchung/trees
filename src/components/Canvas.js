@@ -18,7 +18,6 @@ class Canvas extends React.Component{
             Cladogram : this.props.clado,
             updateMe: true
         };
-        this.TreeOfTrees = " ";
         this.currentTree = 0;
         this.utils = new TreeUtils(); // make a global 
         this.DisplayIndex = false;
@@ -36,6 +35,11 @@ class Canvas extends React.Component{
     componentDidMount(){
         this.canvas = this.refs.canvas;
         this.ctx = this.canvas.getContext("2d");
+
+        this.ctx.save();
+        this.ctx.font ="italic 25px serif";
+        this.ctx.fillText("Please select input file", (this.canvas.width-350)/2 , this.canvas.height/2);
+        this.ctx.restore();
         // resize
         window.addEventListener('resize', this.onWindowResize, false); 
         this.canvas.addEventListener('click', (e)=> {
@@ -104,7 +108,6 @@ class Canvas extends React.Component{
         this.ctx.canvas.width = window.innerWidth;
         this.ctx.canvas.height = window.innerHeight*0.8;
         this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
-        // this.utils.drawOneTree(this.currentTree,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
         // need function to redraw tree instead
         this.utils.redrawCurrentTree(this.state.Cladogram,this.canvas, this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
         if(this.DisplayIndex){
