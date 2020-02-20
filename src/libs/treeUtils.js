@@ -471,10 +471,6 @@ function TreeUtils(){
         }
         if((currNode.left === null) && (currNode.right === null)){
             newickSt.push(tNode.data);
-            // if(currNode.theta!== null){
-            //     newickSt.newick += " "+ currNode.theta;
-            // }
-            // newickSt.newick += " "+currNode.height;
         }
     }
 
@@ -648,6 +644,7 @@ function TreeUtils(){
             if(!useCladogram){
                 scaleBar=30.0/heightFactor;
                 this.makeEdge(initX-40,initY+this.maxNameLength,initY+this.maxNameLength+scaleBar*heightFactor,context); // vertical side bar 
+                context.font = "italic bold 16px serif";
                 context.fillText(scaleBar.toPrecision(1),initX-35,initY+this.maxNameLength+scaleBar*heightFactor);
             }
         

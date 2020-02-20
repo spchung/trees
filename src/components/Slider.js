@@ -35,7 +35,6 @@ const getLeft = (percentage) => `calc(${percentage}% - 5px)`;
 const Slider = ({
   initial,
   max,
-  formatFn = number => number.toFixed(0),
   onChange,
 }) => {
 
@@ -70,7 +69,7 @@ const Slider = ({
     const newValue = getValue(newPercentage, max);
 
     thumbRef.current.style.left = getLeft(Math.round(newPercentage));
-    currentRef.current.textContent = formatFn(Math.round(newValue));
+    currentRef.current.textContent = Math.round(newValue);
 
     onChange(newValue);
   };
@@ -91,9 +90,9 @@ const Slider = ({
   return (
     <>
       <SliderHeader>
-        <strong ref={currentRef}>{formatFn(initial)}</strong>
+        <strong ref={currentRef}>{initial}</strong>
         &nbsp;/&nbsp;
-        {formatFn(max)}
+        {max}
       </SliderHeader>
       <StyledSlider ref={sliderRef}>
         <StyledThumb

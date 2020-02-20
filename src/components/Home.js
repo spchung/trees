@@ -92,9 +92,15 @@ class Home extends React.Component{
         return(
             <div style={{marginLeft:30, marginTop:15, marginRight:30}}>
                 <Canvas received={this.state.uploaded} trees = {this.state.trees} clado = {this.state.Cladogram} relscal={this.state.RelScaling}/>
-                <input type ='file' onChange={this.handleUpload} />
-                <Checkbox text="Relative Scaling" onChange={this.handleRelScalingChange} checked={this.state.RelScaling} />
-                <Checkbox text="Cladogram" onChange={this.handleCladogramChange} checked={this.state.Cladogram} />
+                <label className="file-inp">
+                    <input type ='file' onChange={this.handleUpload} />
+                </label>
+                <div className="scaling-btn-group">
+                    <Checkbox text="Relative Scaling" onChange={this.handleRelScalingChange} checked={this.state.RelScaling} />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                    <Checkbox text="Cladogram" onChange={this.handleCladogramChange} checked={this.state.Cladogram} />
+                </div>
+                
             </div>
         )
     }

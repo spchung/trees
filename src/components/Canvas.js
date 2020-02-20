@@ -16,6 +16,7 @@ class Canvas extends React.Component{
             maxNameLength : 0,
             RelScaling : this.props.relscal,
             Cladogram : this.props.clado,
+            updateMe: true
         };
         this.TreeOfTrees = " ";
         this.currentTree = 0;
@@ -127,10 +128,10 @@ class Canvas extends React.Component{
         this.utils.drawOneTree(index, this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
     }
 
-    toggleIndexDisplay = () => {
-        // if(this.utils.circles.length > 0){
+    toggleIndexDisplay = async() => {
         this.utils.circles = [];
         this.DisplayIndex = !this.DisplayIndex;
+        // this.setState({updateMe:true});
         this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
         // this.utils.drawOneTree(this.currentTree,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
         this.utils.redrawCurrentTree(this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
@@ -144,7 +145,7 @@ class Canvas extends React.Component{
             else{
                 this.utils.displayIndex(true, this.ctx);
             }
-        } 
+        }
     }
 
     saveAsPDF = () => {
@@ -168,8 +169,11 @@ class Canvas extends React.Component{
                     formatFn={number => number.toFixed(2)}
                     onChange={value => this.swapTree(value)} // round value to get index for treeVect
                 />
-                <button onClick={this.toggleIndexDisplay}>Display Node ID</button>
-                <button onClick={this.saveAsPDF}>Save as PDF</button>
+                <div className="display-save-group">
+                    <button className="display-btn" onClick={this.toggleIndexDisplay}>{this.DisplayIndex? "Hide Node ID": "Display Node ID"}</button>
+                    &nbsp;&nbsp;
+                    <button className="save-btn" onClick={this.saveAsPDF}>Save as PDF</button>
+                </div>
             </div>
         )
     }
