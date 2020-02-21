@@ -12,15 +12,19 @@ class Home extends React.Component{
             RelScaling : true,
             Cladogram : false,
         }
+        this.CurrFile = null;
+        this.currFileLength = 0;
+        this.previousFileLen = 0;
     }
 
-    handleUpload = async (ev) => {
+    handleUpload = (ev) => {
         if( window.File && window.FileReader && window.FileList && window.Blob ){
             var reader = new FileReader();
             var file = document.querySelector('input[type=file]').files[0];
             var textFile = /text.*/;
             var scope = this; // for anonymous funtion below that is not in the class component 
-            if(file.type.match(textFile)) {
+            if(file.type.match(textFile) && !file.type.match(/text\/javascript/)) // .js file is also considered a text file (try console.log(file.type));
+            {
                 reader.onload = function (event) {
                     if(scope.varifyInputFile(event.target.result.split("\n"))){
                         scope.setState({
@@ -33,6 +37,7 @@ class Home extends React.Component{
                         scope.forceUpdate();
                     }
                 }
+                this.CurrFile = file; // for refresh purposes
                 reader.readAsText(file);
             }
             else {
@@ -41,6 +46,25 @@ class Home extends React.Component{
         }
         else {
             alert("Your browswer is too old for HTML5 file uploads. Please update.");
+        }
+    }
+
+    handleRefresh = () =>{
+        if(this.CurrFile!==null){
+            var reader = new FileReader(); 
+            var scope = this;
+            reader.onload = function (event) {
+                if(scope.varifyInputFile(event.target.result.split("\n"))){
+                    scope.setState({
+                        trees : event.target.result.split("\n"),    // loads data into state  
+                        uploaded: true                              // switch upload status -> also triggers the actual drawing of the tree
+                    });
+                }
+                else{
+                    scope.forceUpdate();
+                }
+            }
+            reader.readAsText(this.CurrFile);
         }
     }
 
@@ -91,7 +115,7 @@ class Home extends React.Component{
     render(){
         return(
             <div style={{marginLeft:30, marginTop:15, marginRight:30}}>
-                <Canvas received={this.state.uploaded} trees = {this.state.trees} clado = {this.state.Cladogram} relscal={this.state.RelScaling}/>
+                <Canvas received={this.state.uploaded} trees = {this.state.trees} clado = {this.state.Cladogram} relscal={this.state.RelScaling} refresh={this.handleRefresh}/>
                 <label className="file-inp">
                     <input type ='file' onChange={this.handleUpload} />
                 </label>
