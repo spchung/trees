@@ -23,25 +23,27 @@ class Home extends React.Component{
             var file = document.querySelector('input[type=file]').files[0];
             var textFile = /text.*/;
             var scope = this; // for anonymous funtion below that is not in the class component 
-            if(file.type.match(textFile) && !file.type.match(/text\/javascript/)) // .js file is also considered a text file (try console.log(file.type));
-            {
-                reader.onload = function (event) {
-                    if(scope.varifyInputFile(event.target.result.split("\n"))){
-                        scope.setState({
-                            trees : event.target.result.split("\n"),    // loads data into state  
-                            uploaded: true                              // switch upload status -> also triggers the actual drawing of the tree
-                        });
+            if(file){
+                if(file.type.match(textFile) && !file.type.match(/text\/javascript/)) // .js file is also considered a text file (try console.log(file.type));
+                {
+                    reader.onload = function (event) {
+                        if(scope.varifyInputFile(event.target.result.split("\n"))){
+                            scope.setState({
+                                trees : event.target.result.split("\n"),    // loads data into state  
+                                uploaded: true                              // switch upload status -> also triggers the actual drawing of the tree
+                            });
+                        }
+                        else{
+                            console.log("bad input");
+                            scope.forceUpdate();
+                        }
                     }
-                    else{
-                        console.log("bad input");
-                        scope.forceUpdate();
-                    }
+                    this.CurrFile = file; // for refresh purposes
+                    reader.readAsText(file);
                 }
-                this.CurrFile = file; // for refresh purposes
-                reader.readAsText(file);
-            }
-            else {
-                alert("Upload was not a .txt file");
+                else {
+                    alert("Upload was not a .txt file");
+                }
             }
         }
         else {

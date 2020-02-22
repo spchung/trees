@@ -111,7 +111,6 @@ function TreeUtils(){
     this.postOrder = (node,context,brLng) => {
         if (!brLng){ // is a cladogram with no branch lengths
             if(node === null){
-                // console.log("returned");
                 return; 
             }
             if(node.left !== null){
@@ -138,9 +137,6 @@ function TreeUtils(){
                 context.lineTo(node.right.space+initX,node.height*heightFactor+initY+this.maxNameLength);
                 context.stroke();
                 if(node.father != null){
-                    // var y1=node.right.height*heightFactor+initY+maxNameLength;
-                    // var y2=node.height*heightFactor+initY+maxNameLength;
-                    // this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.theta,context);
                     this.printTheta(node.space+initX,node.height*heightFactor+initY+this.maxNameLength, node, context)
                     this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.father.height*heightFactor+initY+this.maxNameLength,context);
                 }
@@ -148,29 +144,21 @@ function TreeUtils(){
                     this.drawRootTheta(node, context, node.theta, true);
                 }
             }
-            // this.addNodeTag(node, order, context);
         }
         else if(brLng){
             if(node === null){
-                // console.log("returned");
                 return;
             }
             if(node.left != null){
-                // console.log("going left");
                 this.postOrder(node.left, context, true);
             }
             if(node.right != null){
-                // console.log("going right");
                 this.postOrder(node.right, context, true);
             }
             if((node.left === null)&&(node.right === null)){
                 // drawing the tips of the tree 
                 space+=spaceFactor;
                 node.space=space;
-                // var y2=node.height*heightFactor+initY+maxNameLength;
-                // this.makeEdge(50,200,500,context);
-                // console.log("nodeSpace: ", node.space, "initX: ", initX, "initY: ", initY, "MaxNameLen: ", this.maxNameLength, "nodeeight: ", node.height, "HeightFactor: ", heightFactor);
-                // this.makeEdge(264,45,450, context);
                 this.printTheta( node.space+initX, initY+this.maxNameLength, node, context, true);
                 this.makeEdge( node.space+initX, initY+this.maxNameLength, node.height*heightFactor+initY+this.maxNameLength, context);
             }
@@ -184,11 +172,8 @@ function TreeUtils(){
                 context.moveTo(node.left.space+initX,node.right.height*heightFactor+initY+this.maxNameLength);
                 context.lineTo(node.right.space+initX,node.right.height*heightFactor+initY+this.maxNameLength);
                 context.stroke();
-                // try printing order
                 if(node.father != null){
-                    // this.makeEdge(100,200,500,context);
                     this.printTheta(node.space+initX, node.right.height*heightFactor+initY+this.maxNameLength, node, context );
-                    // node.space+initX,node.right.height*heightFactor+initY+this.maxNameLength,node.height*heightFactor+initY+this.maxNameLength,context
                     this.makeEdge(node.space+initX,node.right.height*heightFactor+initY+this.maxNameLength,node.height*heightFactor+initY+this.maxNameLength,context);
                 }
                 else{
@@ -364,7 +349,7 @@ function TreeUtils(){
     ////////////// ADD ONS ///////////////
     //// Prinitng Theta Value ////
     this.printTheta = (x,y,node,context,branchTip) =>{
-        if(node){
+        if(node && node.theta){
             // console.log(node.order)
             context.textAlign='start';
             context.textBaseline='middle';
