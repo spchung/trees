@@ -61,6 +61,7 @@ class Canvas extends React.Component{
         // get init state for utils global scale 
         this.utils.tallestTreeScale = this.state.RelScaling;
         this.utils.useCladogram = this.state.Cladogram;
+
     }
 
     IntersectWithCircle = (pos, circle) => {
@@ -160,7 +161,7 @@ class Canvas extends React.Component{
                     onChange={value => this.slideToNextTree(value)} // round value to get index for treeVect
                 />
                 <div className="display-save-group">
-                    <button className="display-btn" onClick={this.toggleIndexDisplay}>{this.DisplayIndex? "Hide Node ID": "Display Node ID"}</button>
+                    <button className="display-btn" onClick={this.toggleIndexDisplay}>Display Node ID</button>
                     &nbsp;&nbsp;
                     <button className="save-btn" onClick={this.saveAsPDF}>Save as PDF</button>
                     &nbsp;&nbsp;

@@ -102,7 +102,7 @@ class Home extends React.Component{
             }
 
             //3. species name and branchlength test 
-            if( string.match(/(?=\D)(\w+)/g).length !== string.match(/(?=\D)(\w+)(\:\s\d+\.\d+)/g).length ){
+            if( string.match(/(?=\D)(\w+)/g).length !== string.match(/(?=\D)(\w+)(:\s\d+\.\d+)/g).length ){
                 returnString+=(`Mismatch number of species and brlength at line ${i+1}\n`);
                 badInput = true;
             }
