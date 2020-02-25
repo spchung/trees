@@ -21,6 +21,7 @@ class Canvas extends React.Component{
         this.currentTree = 0;
         this.utils = new TreeUtils(); // make a global 
         this.DisplayIndex = false;
+        this.swapCount=0;
     }
     // update local state from props changes 
     static getDerivedStateFromProps(props, state) {
@@ -41,6 +42,8 @@ class Canvas extends React.Component{
         this.ctx.restore();
         // resize
         window.addEventListener('resize', this.onWindowResize, false); 
+
+        // window 
         this.canvas.addEventListener('click', (e)=> {
             if(this.utils.circles.length > 0){
                 const pos = {
@@ -116,6 +119,7 @@ class Canvas extends React.Component{
     }
 
     toggleIndexDisplay = () => {
+        this.swapCount=0;
         this.utils.circles = [];
         this.DisplayIndex = !this.DisplayIndex;
         // this.setState({updateMe:true});
@@ -124,10 +128,24 @@ class Canvas extends React.Component{
         this.utils.redrawCurrentTree(this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
         if(this.DisplayIndex){
             this.runDisplayIndex(this.state.Cladogram, this.state.RelScaling, this.ctx);
+            this.showSwapInstructions(this.ctx);
+        }
+    }
+
+    showSwapInstructions = (context) => {
+        if(this.utils.circles.length > 0){
+            context.save();
+            context.translate(0,650);
+            context.fillText("Instruction:\nClick on the any node bubbles\non the screen to swap the associated branches ",0,0);
+            context.restore();
         }
     }
 
     runDisplayIndex = (clado, relscale, context) => {
+        //only show instructions for the first three swaps
+        if(this.swapCount <3){
+            this.showSwapInstructions(this.ctx);
+        }
         if(clado){
             this.utils.displayIndex(false, context);
         }
@@ -137,6 +155,7 @@ class Canvas extends React.Component{
         else{
             this.utils.displayIndex(true, context);
         }
+        this.swapCount++;
     }
 
     saveAsPDF = () => {
@@ -161,7 +180,7 @@ class Canvas extends React.Component{
                     onChange={value => this.slideToNextTree(value)} // round value to get index for treeVect
                 />
                 <div className="display-save-group">
-                    <button className="display-btn" onClick={this.toggleIndexDisplay}>Display Node ID</button>
+                    <button className="display-btn" onClick={this.toggleIndexDisplay}>Swap Nodes</button>
                     &nbsp;&nbsp;
                     <button className="save-btn" onClick={this.saveAsPDF}>Save as PDF</button>
                     &nbsp;&nbsp;

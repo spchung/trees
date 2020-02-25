@@ -5,16 +5,18 @@ import Checkbox from './Checkbox'
 class Home extends React.Component{
     constructor(){
         super()
-
         this.state = {
             uploaded: false, 
             trees: [],
             RelScaling : true,
             Cladogram : false,
+            AbsScaling : false,
+            currLen : 0
         }
         this.CurrFile = null;
         this.currFileLength = 0;
         this.previousFileLen = 0;
+        this.past =0;
     }
 
     handleUpload = (ev) => {
@@ -30,8 +32,12 @@ class Home extends React.Component{
                         if(scope.varifyInputFile(event.target.result.split("\n"))){
                             scope.setState({
                                 trees : event.target.result.split("\n"),    // loads data into state  
-                                uploaded: true                              // switch upload status -> also triggers the actual drawing of the tree
+                                uploaded: true,                              // switch upload status -> also triggers the actual drawing of the tree
+                                currLen : event.target.result.split("\n").length
                             });
+                            scope.setState({currLen: event.target.result.split("\n").length}); 
+                            // console.log(this.currFileLength);
+                            scope.past = scope.state.currLen;
                         }
                         else{
                             console.log("bad input");
@@ -51,7 +57,7 @@ class Home extends React.Component{
         }
     }
 
-    handleRefresh = () =>{
+    handleRefresh = async () =>{
         if(this.CurrFile!==null){
             var reader = new FileReader(); 
             var scope = this;
@@ -59,27 +65,56 @@ class Home extends React.Component{
                 if(scope.varifyInputFile(event.target.result.split("\n"))){
                     scope.setState({
                         trees : event.target.result.split("\n"),    // loads data into state  
-                        uploaded: true                              // switch upload status -> also triggers the actual drawing of the tree
+                        uploaded: true,                              // switch upload status -> also triggers the actual drawing of the tree
+                        currLen : event.target.result.split("\n").length
                     });
+                    scope.setState({currLen: event.target.result.split("\n").length}); 
+                    scope.logDiffLength();
+                    scope.past = scope.state.currLen;
                 }
                 else{
                     scope.forceUpdate();
                 }
             }
-            reader.readAsText(this.CurrFile);
+            await reader.readAsText(this.CurrFile);
+            // this.logging();
+        }
+        // window.setTimeout(3000);
+    }
+
+    logDiffLength=()=>{
+        if(this.past !== this.state.currLen){
+            if(this.past < this.state.currLen){
+                alert(`New lines added to file.\nOld Length: ${this.past}\nNew Length: ${this.state.currLen}\nAdded ${this.state.currLen - this.past} new lines to the file.`);
+            }
+            else{
+                alert(`Seems like you deleted some lines in your file! That doesn't seem right.\nPlease check your input file again`);
+            }
         }
     }
 
     handleRelScalingChange = (ev)=> {
         this.setState({
-            RelScaling: ev.target.checked
+            RelScaling: true, 
+            Cladogram: false, 
+            AbsScaling: false
         });
     }
 
     handleCladogramChange = (ev) => {
         this.setState({
-            Cladogram : ev.target.checked
+            Cladogram : true,
+            RelScaling: false,
+            AbsScaling: false
         });
+    }
+
+    handleAbsScaling = (ev) => {
+        this.setState({
+            AbsScaling : true, 
+            Cladogram: false,
+            RelScaling: false
+        })
     }
 
     varifyInputFile = (inputVect) => {
@@ -122,6 +157,8 @@ class Home extends React.Component{
                     <input type ='file' onChange={this.handleUpload} />
                 </label>
                 <div className="scaling-btn-group">
+                    <Checkbox text="Absolute Scaling" onChange={this.handleAbsScaling} checked={this.state.AbsScaling}/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
                     <Checkbox text="Relative Scaling" onChange={this.handleRelScalingChange} checked={this.state.RelScaling} />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
                     <Checkbox text="Cladogram" onChange={this.handleCladogramChange} checked={this.state.Cladogram} />
