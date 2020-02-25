@@ -136,7 +136,7 @@ class Canvas extends React.Component{
         if(this.utils.circles.length > 0){
             context.save();
             context.translate(0,650);
-            context.fillText("Instruction:\nClick on the any node bubbles\non the screen to swap the associated branches ",0,0);
+            context.fillText("Instruction:\nClick on any node bubbles\non the screen to swap its associated branches ",0,0);
             context.restore();
         }
     }
