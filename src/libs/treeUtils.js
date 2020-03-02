@@ -424,7 +424,8 @@ function TreeUtils(){
     this.drawIndexToCanvas = (x, y, MaxNameLen ,node, context, brLen) => {
         var radius = 15;
         if(node.father === null){
-            if(brLen){
+            if(brLen){ //if not cladogram
+
                 let x = (node.left.space+node.right.space)/2+initX;
                 let y = node.right.height*heightFactor+initY+MaxNameLen;
                 
@@ -444,20 +445,17 @@ function TreeUtils(){
                 context.restore();
             }
             else{
-                let x = (node.left.space+node.right.space)/2+initX-50;
-                let y = node.height*heightFactor+initY+MaxNameLen+10
-
                 context.save();
                 context.beginPath();
-                this.createCircle(x, y, radius, node.index);
-                context.arc(x, y, radius, 0, 2*Math.PI, false);
+                this.createCircle(x, y+30, radius, node.index);
+                context.arc(x, y+30, radius, 0, 2*Math.PI, false);
                 context.fillStyle = '#4a4a4a';
                 context.fill();
                 context.lineWidth = 3;
                 context.strokeStyle = '#000000';
                 context.stroke();
 
-                context.translate(x-4, y);
+                context.translate(x-4, y+30);
                 context.fillStyle = '#ffffff';
                 context.fillText(node.index,0,0);
                 context.restore();
@@ -465,25 +463,36 @@ function TreeUtils(){
         }
         else{
             context.textAlign='start';
-            context.textBaseline='middle';
-            
+            context.textBaseline='middle'; 
             context.save();
             context.beginPath();
-            let x = (node.left.space+node.right.space)/2+initX;
-            let y = node.right.height*heightFactor+initY+MaxNameLen;
-            this.createCircle(x, y, radius, node.index);
-            context.arc(x, y, radius, 0, 2*Math.PI, false);
-
-            context.fillStyle = '#4a4a4a';
-            context.fill();
-            context.lineWidth = 3;
-            context.strokeStyle = '#000000';
-            context.stroke();
-
-            context.translate(x-4, y);
-            context.fillStyle = '#ffffff';
-            context.fillText(node.index, 0, 0);
-            context.restore();
+            if(!this.useCladogram){
+                let x = (node.left.space+node.right.space)/2+initX;
+                let y = node.right.height*heightFactor+initY+MaxNameLen;
+                this.createCircle(x, y, radius, node.index);
+                context.arc(x, y, radius, 0, 2*Math.PI, false);
+                context.fillStyle = '#4a4a4a';
+                context.fill();
+                context.lineWidth = 3;
+                context.strokeStyle = '#000000';
+                context.stroke();
+                context.translate(x-4, y);
+                context.fillStyle = '#ffffff';
+                context.fillText(node.index, 0, 0);
+                context.restore();
+            }else{
+                this.createCircle(x, y+30, radius, node.index);
+                context.arc(x, y+30, radius, 0, 2*Math.PI, false);
+                context.fillStyle = '#4a4a4a';
+                context.fill();
+                context.lineWidth = 3;
+                context.strokeStyle = '#000000';
+                context.stroke();
+                context.translate(x-4, y+30);
+                context.fillStyle = '#ffffff';
+                context.fillText(node.index, 0, 0);
+                context.restore();
+            }  
         }
     }
 
