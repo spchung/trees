@@ -469,15 +469,18 @@ function TreeUtils(){
             
             context.save();
             context.beginPath();
-            this.createCircle(x, y+30, radius, node.index);
-            context.arc(x, y+30, radius, 0, 2*Math.PI, false);
+            let x = (node.left.space+node.right.space)/2+initX;
+            let y = node.right.height*heightFactor+initY+MaxNameLen;
+            this.createCircle(x, y, radius, node.index);
+            context.arc(x, y, radius, 0, 2*Math.PI, false);
+
             context.fillStyle = '#4a4a4a';
             context.fill();
             context.lineWidth = 3;
             context.strokeStyle = '#000000';
             context.stroke();
 
-            context.translate(x-4, y+30);
+            context.translate(x-4, y);
             context.fillStyle = '#ffffff';
             context.fillText(node.index, 0, 0);
             context.restore();

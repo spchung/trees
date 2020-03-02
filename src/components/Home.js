@@ -77,12 +77,10 @@ class Home extends React.Component{
                 }
             }
             await reader.readAsText(this.CurrFile);
-            // this.logging();
         }
-        // window.setTimeout(3000);
     }
 
-    logDiffLength=()=>{
+    logDiffLength = () => {
         if(this.past !== this.state.currLen){
             if(this.past < this.state.currLen){
                 alert(`New lines added to file.\nOld Length: ${this.past}\nNew Length: ${this.state.currLen}\nAdded ${this.state.currLen - this.past} new lines to the file.`);
