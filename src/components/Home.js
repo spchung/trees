@@ -149,7 +149,7 @@ class Home extends React.Component{
 
     render(){
         return(
-            <div style={{marginLeft:30, marginTop:15, marginRight:30}}>
+            <div style={{paddingLeft:30, paddingTop:15, paddingRight:30}}>
                 <Canvas received={this.state.uploaded} trees = {this.state.trees} clado = {this.state.Cladogram} relscal={this.state.RelScaling} refresh={this.handleRefresh}/>
                 <label className="file-inp">
                     <input type ='file' onChange={this.handleUpload} />

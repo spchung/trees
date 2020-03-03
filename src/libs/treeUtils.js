@@ -1,7 +1,7 @@
 /* eslint-disable no-lone-blocks */
 function TreeUtils(){
     // var treeString="empty";
-    var TREEROOT;
+    this.TREEROOT=null;
     var SPNAMES=[];
     var initX=40;
     var initY=15; 
@@ -196,11 +196,11 @@ function TreeUtils(){
 
                 }
                 else{
-                    heightFactor=hF/TREEROOT.left.height;
+                    heightFactor=hF/this.TREEROOT.left.height;
                 }
             }
             else {
-                heightFactor=hF/TREEROOT.height;
+                heightFactor=hF/this.TREEROOT.height;
             }
             // draw scale bar at left
             if(!useCladogram){
@@ -212,10 +212,10 @@ function TreeUtils(){
             context.font = "italic bold 16px serif";
             this.printNames(SPNAMES,context);
             if(!useCladogram){
-                this.postOrder(TREEROOT,context,true);
+                this.postOrder(this.TREEROOT,context,true);
             }
             else{
-                this.postOrder(TREEROOT,context,false);
+                this.postOrder(this.TREEROOT,context,false);
             }
         }
     }
@@ -232,8 +232,8 @@ function TreeUtils(){
 
             let n = new Node("root", null, null, null);
             n.height = height
-            TREEROOT = n;
-            let current = TREEROOT;
+            this.TREEROOT = n;
+            let current = this.TREEROOT;
             current.height=0;
             for(let pos = 0; pos < newick.length; pos++){
                 if((newick[pos] === "(")||(newick[pos]===",")){
@@ -271,7 +271,7 @@ function TreeUtils(){
                     }
                 orderTag+=1;
 	        }
-	        TREEROOT.height=Math.max(current.right.height,current.left.height)+1;
+	        this.TREEROOT.height=Math.max(current.right.height,current.left.height)+1;
         }
         else if(brLen){
             SPNAMES = newickString.replace(/(#\d+\.\d+)|(\d+\.\d+)/g,"").replace(/e-\d+/g,"").replace(/:/g,"").match(/(?=\D)(\w+)/g);
@@ -279,8 +279,8 @@ function TreeUtils(){
             newickString=newickString.replace(/e-\d+/g,"").replace(/:/g,"");
             let newick=newickString.match(/((\+|-)?([0-9]+\.[0-9]*|\.[0-9]+)([eE](\+|-)?[0-9]+)?)|(\w+)|(\()|(\))|(,)|([#]\d+\.\d+)/g); 
             let n = new Node("root", null, null, null, null, null, null);
-            TREEROOT = n;
-            let current = TREEROOT;
+            this.TREEROOT = n;
+            let current = this.TREEROOT;
             let cumY=0.0;
             for(let pos = 0; pos < newick.length; pos++){
                 if((newick[pos] === "(")||(newick[pos]===",")){
@@ -384,16 +384,16 @@ function TreeUtils(){
 
     this.displayIndex = (brLen, context) =>{
         if(this.circles.length === 0){
-            if(TREEROOT){
+            if(this.TREEROOT){
                 var indexer = new Indexer();
-                EnumerateTree(TREEROOT,indexer);
-                this.DrawIndex(TREEROOT, brLen, context, this.maxNameLength);
+                EnumerateTree(this.TREEROOT,indexer);
+                this.DrawIndex(this.TREEROOT, brLen, context, this.maxNameLength);
             }
         }
         else{
-            if(TREEROOT){
+            if(this.TREEROOT){
                 this.circles =[];
-                this.DrawIndex(TREEROOT, brLen, context, this.maxNameLength);
+                this.DrawIndex(this.TREEROOT, brLen, context, this.maxNameLength);
             }
         }
     }
@@ -428,7 +428,7 @@ function TreeUtils(){
 
                 let x = (node.left.space+node.right.space)/2+initX;
                 let y = node.right.height*heightFactor+initY+MaxNameLen;
-                
+
                 context.save();
                 context.beginPath();
                 this.createCircle(x, y, radius, node.index);
@@ -497,8 +497,8 @@ function TreeUtils(){
     }
 
     this.swapNodes = (nodeId, useCladogram, canvas, context, tallestTreeScale, hF) => {
-        if(TREEROOT){
-            Swap(TREEROOT,nodeId);
+        if(this.TREEROOT){
+            Swap(this.TREEROOT,nodeId);
             spaceFactor = (canvas.width-initX)*0.9/SPNAMES.length;
             space=0;
             if(!useCladogram){
@@ -507,11 +507,11 @@ function TreeUtils(){
 
                 }
                 else{
-                    heightFactor=hF/TREEROOT.left.height;
+                    heightFactor=hF/this.TREEROOT.left.height;
                 }
             }
             else {
-                heightFactor=hF/TREEROOT.height;
+                heightFactor=hF/this.TREEROOT.height;
             }
             // draw scale bar at left
             // if(value==0)
@@ -522,18 +522,18 @@ function TreeUtils(){
             }
         
             context.font = "italic bold 16px serif";
-            this.printNames(NewSpeciesOrder(TREEROOT), context);
+            this.printNames(NewSpeciesOrder(this.TREEROOT), context);
             if(!useCladogram){
-                this.postOrder(TREEROOT,context,true);
+                this.postOrder(this.TREEROOT,context,true);
             }
             else{
-                this.postOrder(TREEROOT,context,false);
+                this.postOrder(this.TREEROOT,context,false);
             }
         }
     }
     
     this.redrawCurrentTree = (useCladogram, canvas, context, tallestTreeScale, hF) => {
-        if(TREEROOT){
+        if(this.TREEROOT){
             spaceFactor = (canvas.width-initX)*0.9/SPNAMES.length;
             space=0;
             if(!useCladogram){
@@ -542,11 +542,11 @@ function TreeUtils(){
 
                 }
                 else{
-                    heightFactor=hF/TREEROOT.left.height;
+                    heightFactor=hF/this.TREEROOT.left.height;
                 }
             }
             else {
-                heightFactor=hF/TREEROOT.height;
+                heightFactor=hF/this.TREEROOT.height;
             }
             // draw scale bar at left
             if(!useCladogram){
@@ -557,12 +557,12 @@ function TreeUtils(){
             }
         
             context.font = "italic bold 16px serif";
-            this.printNames(NewSpeciesOrder(TREEROOT), context);
+            this.printNames(NewSpeciesOrder(this.TREEROOT), context);
             if(!useCladogram){
-                this.postOrder(TREEROOT,context,true);
+                this.postOrder(this.TREEROOT,context,true);
             }
             else{
-                this.postOrder(TREEROOT,context,false);
+                this.postOrder(this.TREEROOT,context,false);
             }
         }
     }

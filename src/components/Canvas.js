@@ -1,6 +1,9 @@
 import React from 'react'
-import Slider from './Slider';
+// import Slider from './Slider';
+// import Slider from 'react-rangeslider'
+import TreeSlider from './Slider3'
 import jsPDF from 'jspdf';
+import Slide from './Slide';
 // import TreeUtils from '../libs/treeUtils'
 
 var TreeUtils = require('../libs/treeUtils');
@@ -16,7 +19,8 @@ class Canvas extends React.Component{
             maxNameLength : 0,
             RelScaling : this.props.relscal,
             Cladogram : this.props.clado,
-            updateMe: true
+            updateMe: true,
+            currTree: 0
         };
         this.currentTree = 0;
         this.utils = new TreeUtils(); // make a global 
@@ -65,6 +69,29 @@ class Canvas extends React.Component{
         this.utils.tallestTreeScale = this.state.RelScaling;
         this.utils.useCladogram = this.state.Cladogram;
 
+        window.addEventListener("keydown", e => {
+            if(this.utils.TREEROOT){
+                e.preventDefault();
+                if(e.keyCode === 37){  //left arrow 
+                    if(this.state.currTree > 0){
+                        this.setState({currTree: this.state.currTree-1})
+                        this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
+                        this.utils.drawOneTree(this.state.currTree,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
+                        console.log("going left",this.state.currTree)
+                        this.refs.slider.arrowKeyChange(this.state.currTree);
+                    }
+                }
+                else if(e.keyCode === 39){ //right arrow 
+                    if(this.state.currTree < this.state.treeVec.length){
+                        this.setState({currTree: this.state.currTree+1})
+                        this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
+                        this.utils.drawOneTree(this.state.currTree,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
+                        console.log("going right", this.state.currTree)
+                        this.refs.slider.arrowKeyChange(this.state.currTree);
+                    }
+                }
+            }
+        })
     }
 
     IntersectWithCircle = (pos, circle) => {
@@ -96,7 +123,7 @@ class Canvas extends React.Component{
         // Draw first tree  
         let noTr = this.state.treeVec.length-2;
         this.utils.getMaxHeight(noTr, this.state.treeVec);
-        this.utils.drawOneTree(this.currentTree,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
+        this.utils.drawOneTree(this.state.currTree,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
     }
 
     onWindowResize = () => {
@@ -113,7 +140,8 @@ class Canvas extends React.Component{
     slideToNextTree = (i) => {
         this.DisplayIndex = false;
         let index = Math.round(i);
-        this.currentTree = index;
+        // this.currentTree = index;
+        this.setState({currTree : index});
         this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
         this.utils.drawOneTree(index, this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
     }
@@ -170,15 +198,18 @@ class Canvas extends React.Component{
     }
 
     render(){
+        let{currTree, treeVec } = this.state;
         return(
             <div>
                 <canvas ref="canvas" width={window.innerWidth} height={(window.innerHeight*0.8)} />
-                <Slider
+                {/* <Slider
                     initial={0}
                     max={this.state.treeVec.length} // use length of vector 
+                    current={this.currentTree}
                     formatFn={number => number.toFixed(2)}
                     onChange={value => this.slideToNextTree(value)} // round value to get index for treeVect
-                />
+                /> */}
+                <Slide ref="slider" currTree={currTree} onChange={value => this.slideToNextTree(value)} treeLength={treeVec.length} currTree={this.state.currTree}/>
                 <div className="display-save-group">
                     <button className="display-btn" onClick={this.toggleIndexDisplay}>Swap Nodes</button>
                     &nbsp;&nbsp;

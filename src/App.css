@@ -92,3 +92,7 @@
   font-family: 'Rubik'; 
   border-radius: 25px;
 }
+
+.slider {
+  width: 100% !important;
+}
