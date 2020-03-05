@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Josefin+Sans');
 @import url('https://fonts.googleapis.com/css?family=Rubik&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Amiri|Nanum+Myeongjo|Noticia+Text|Noto+Serif+JP&display=swap');
 
 .App {
   text-align: center;
@@ -95,4 +96,12 @@
 
 .slider {
   width: 100% !important;
+}
+
+.title {
+  /* tyle={{textAlign:'center', fontSize:'30px'}} */
+  text-align:center;
+  font-size:40px;
+  font-family: 'Amiri', serif;
+
 }

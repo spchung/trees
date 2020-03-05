@@ -57,11 +57,15 @@ class Home extends React.Component{
         }
     }
 
-    handleRefresh = async () =>{
+    handleRefresh = (event) =>{
         if(this.CurrFile!==null){
+            this.forceUpdate();
             var reader = new FileReader(); 
             var scope = this;
+            var file = document.querySelector('input[type=file]').files[0];
+            console.log("refresh?")
             reader.onload = function (event) {
+                event.preventDefault();
                 if(scope.varifyInputFile(event.target.result.split("\n"))){
                     scope.setState({
                         trees : event.target.result.split("\n"),    // loads data into state  
@@ -76,17 +80,19 @@ class Home extends React.Component{
                     scope.forceUpdate();
                 }
             }
-            await reader.readAsText(this.CurrFile);
+            console.log(file);
+            reader.readAsText(file);
         }
     }
 
     logDiffLength = () => {
         if(this.past !== this.state.currLen){
             if(this.past < this.state.currLen){
-                alert(`New lines added to file.\nOld Length: ${this.past}\nNew Length: ${this.state.currLen}\nAdded ${this.state.currLen - this.past} new lines to the file.`);
+                console.log("yolomemao")
+                // alert(`New lines added to file.\nOld Length: ${this.past}\nNew Length: ${this.state.currLen}\nAdded ${this.state.currLen - this.past} new lines to the file.`);
             }
             else{
-                alert(`Seems like you deleted some lines in your file! That doesn't seem right.\nPlease check your input file again`);
+                // alert(`Seems like you deleted some lines in your file! That doesn't seem right.\nPlease check your input file again`);
             }
         }
     }
@@ -149,7 +155,9 @@ class Home extends React.Component{
 
     render(){
         return(
-            <div style={{paddingLeft:30, paddingTop:15, paddingRight:30}}>
+            <div style={{paddingLeft:30, paddingTop:0, paddingRight:30, paddingBottom:30}}> 
+                <div className='title'>BBP TREE VISUALIZER</div> 
+                <div>&nbsp;</div>
                 <Canvas received={this.state.uploaded} trees = {this.state.trees} clado = {this.state.Cladogram} relscal={this.state.RelScaling} refresh={this.handleRefresh}/>
                 <label className="file-inp">
                     <input type ='file' onChange={this.handleUpload} />
@@ -161,7 +169,6 @@ class Home extends React.Component{
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
                     <Checkbox text="Cladogram" onChange={this.handleCladogramChange} checked={this.state.Cladogram} />
                 </div>
-                
             </div>
         )
     }

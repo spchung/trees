@@ -102,24 +102,25 @@ function TreeUtils(){
         }
     } 
 
-    this.postOrder = (node,context,brLng) => {
+    this.postOrder = (node, context, brLng, showTheta) => {
         if (!brLng){ // is a cladogram with no branch lengths
             if(node === null){
                 return; 
             }
             if(node.left !== null){
                 // console.log("going left");
-                this.postOrder(node.left, context, false);
+                this.postOrder(node.left, context, false, showTheta);
             }
             if(node.right !== null){
                 // console.log("goin right");
-                this.postOrder(node.right, context, false);
+                this.postOrder(node.right, context, false, showTheta);
             } 
             if((node.left == null)&&(node.right == null)){
                 // drawing the tips of the tree 
                 space+=spaceFactor;
                 node.space=space;
-                this.printTheta( node.space+initX, node.height*heightFactor+initY+this.maxNameLength, node, context );
+                if(showTheta)
+                    this.printTheta( node.space+initX, node.height*heightFactor+initY+this.maxNameLength, node, context );
                 this.makeEdge(node.space+initX, node.height*heightFactor+initY+this.maxNameLength,node.father.height*heightFactor+initY+this.maxNameLength,context);
             }
             else {
@@ -131,11 +132,13 @@ function TreeUtils(){
                 context.lineTo(node.right.space+initX,node.height*heightFactor+initY+this.maxNameLength);
                 context.stroke();
                 if(node.father != null){
-                    this.printTheta(node.space+initX,node.height*heightFactor+initY+this.maxNameLength, node, context)
+                    if(showTheta)
+                        this.printTheta(node.space+initX,node.height*heightFactor+initY+this.maxNameLength, node, context)
                     this.makeEdge(node.space+initX,node.height*heightFactor+initY+this.maxNameLength,node.father.height*heightFactor+initY+this.maxNameLength,context);
                 }
                 else{
-                    this.drawRootTheta(node, context, node.theta, true);
+                    if(showTheta)
+                        this.drawRootTheta(node, context, node.theta, true);
                 }
             }
         }
@@ -144,16 +147,17 @@ function TreeUtils(){
                 return;
             }
             if(node.left != null){
-                this.postOrder(node.left, context, true);
+                this.postOrder(node.left, context, true, showTheta);
             }
             if(node.right != null){
-                this.postOrder(node.right, context, true);
+                this.postOrder(node.right, context, true, showTheta);
             }
             if((node.left === null)&&(node.right === null)){
                 // drawing the tips of the tree 
                 space+=spaceFactor;
                 node.space=space;
-                this.printTheta( node.space+initX, initY+this.maxNameLength, node, context, true);
+                if(showTheta)
+                    this.printTheta( node.space+initX, initY+this.maxNameLength, node, context, true);
                 this.makeEdge( node.space+initX, initY+this.maxNameLength, node.height*heightFactor+initY+this.maxNameLength, context);
             }
             else {
@@ -167,17 +171,18 @@ function TreeUtils(){
                 context.lineTo(node.right.space+initX,node.right.height*heightFactor+initY+this.maxNameLength);
                 context.stroke();
                 if(node.father != null){
-                    this.printTheta(node.space+initX, node.right.height*heightFactor+initY+this.maxNameLength, node, context );
+                    if(showTheta)
+                        this.printTheta(node.space+initX, node.right.height*heightFactor+initY+this.maxNameLength, node, context );
                     this.makeEdge(node.space+initX,node.right.height*heightFactor+initY+this.maxNameLength,node.height*heightFactor+initY+this.maxNameLength,context);
                 }
-                else{
+                else if(showTheta){
                     this.drawRootTheta(node, context, node.theta, false);
                 }
             }
         }
     }
 
-    this.drawOneTree = (value,treeVec,useCladogram,canvas,context,tallestTreeScale,hF) => {   
+    this.drawOneTree = (value, treeVec, useCladogram, showTheta, canvas, context, tallestTreeScale, hF) => {   
         if(value < treeVec.length){
             // 1 - make tree structure from input text 
             if(!useCladogram){
@@ -212,10 +217,10 @@ function TreeUtils(){
             context.font = "italic bold 16px serif";
             this.printNames(SPNAMES,context);
             if(!useCladogram){
-                this.postOrder(this.TREEROOT,context,true);
+                this.postOrder(this.TREEROOT,context,true, showTheta);
             }
             else{
-                this.postOrder(this.TREEROOT,context,false);
+                this.postOrder(this.TREEROOT,context,false, showTheta);
             }
         }
     }
@@ -496,7 +501,7 @@ function TreeUtils(){
         }
     }
 
-    this.swapNodes = (nodeId, useCladogram, canvas, context, tallestTreeScale, hF) => {
+    this.swapNodes = (nodeId, useCladogram, showTheta, canvas, context, tallestTreeScale, hF) => {
         if(this.TREEROOT){
             Swap(this.TREEROOT,nodeId);
             spaceFactor = (canvas.width-initX)*0.9/SPNAMES.length;
@@ -524,15 +529,15 @@ function TreeUtils(){
             context.font = "italic bold 16px serif";
             this.printNames(NewSpeciesOrder(this.TREEROOT), context);
             if(!useCladogram){
-                this.postOrder(this.TREEROOT,context,true);
+                this.postOrder(this.TREEROOT,context,true, showTheta);
             }
             else{
-                this.postOrder(this.TREEROOT,context,false);
+                this.postOrder(this.TREEROOT,context,false, showTheta);
             }
         }
     }
     
-    this.redrawCurrentTree = (useCladogram, canvas, context, tallestTreeScale, hF) => {
+    this.redrawCurrentTree = (useCladogram, showTheta, canvas, context, tallestTreeScale, hF) => {
         if(this.TREEROOT){
             spaceFactor = (canvas.width-initX)*0.9/SPNAMES.length;
             space=0;
@@ -559,10 +564,10 @@ function TreeUtils(){
             context.font = "italic bold 16px serif";
             this.printNames(NewSpeciesOrder(this.TREEROOT), context);
             if(!useCladogram){
-                this.postOrder(this.TREEROOT,context,true);
+                this.postOrder(this.TREEROOT,context,true, showTheta);
             }
             else{
-                this.postOrder(this.TREEROOT,context,false);
+                this.postOrder(this.TREEROOT,context,false, showTheta);
             }
         }
     }
@@ -604,7 +609,7 @@ function TreeUtils(){
         if(node === null){
             return;
         }
-        if((node.left !== null)&& (node.right!==null)){
+        if((node.left !== null) && (node.right!==null)){
             indexer.assign(node);
         }
 

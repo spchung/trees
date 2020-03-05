@@ -5,15 +5,14 @@ class Slide extends React.Component {
         super(props);
         this.state = {
             value: props.currTree,
-            visualVal: props.currTree,
-            maxLen: 500 
+            maxLen: 500
         }
         this.val=this.props.currTree;
+        this.step=50;
     }
   
     handleChange = (event) => {
       this.setState( { value : parseInt(event.target.value,10)});
-      console.log(this.val);
       this.onChange(this.state.value);
     }
 
@@ -23,15 +22,12 @@ class Slide extends React.Component {
       }
     }
 
-    conponentDidUpdate(){
-
-      // calculate step here 
-
-
-    }
-
     onChange = (i) => {
       this.props.onChange(i);
+    }
+
+    componentDidMount(){
+      this.setState({value:0});
     }
 
     arrowKeyChange = (i) =>{
@@ -40,11 +36,13 @@ class Slide extends React.Component {
       })
     }
 
-
   render() {
     return (
       <div>
         <label>
+          <div style={{textAlign:'right'}}>
+            {this.state.value}/{this.state.maxLen}
+          </div>
           <input 
             className="slider"
             id="typeinp" 
@@ -52,12 +50,13 @@ class Slide extends React.Component {
             min="0" max={this.state.maxLen} 
             value={this.state.value} 
             onChange={this.handleChange}
-            step={50}/>
-          {this.state.value}/{this.state.maxLen}
+            step={1}/>
         </label>
       </div>
     );
   }
 }
+
+/* The step of this slider might cause app to slow down when dragging quickly */
 
 export default Slide;

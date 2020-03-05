@@ -1,7 +1,7 @@
 import React from 'react'
 // import Slider from './Slider';
 // import Slider from 'react-rangeslider'
-import TreeSlider from './Slider3'
+// import TreeSlider from './Slider3'
 import jsPDF from 'jspdf';
 import Slide from './Slide';
 // import TreeUtils from '../libs/treeUtils'
@@ -26,6 +26,7 @@ class Canvas extends React.Component{
         this.utils = new TreeUtils(); // make a global 
         this.DisplayIndex = false;
         this.swapCount=0;
+        this.DisplayTheta=false 
     }
     // update local state from props changes 
     static getDerivedStateFromProps(props, state) {
@@ -42,7 +43,7 @@ class Canvas extends React.Component{
         this.ctx = this.canvas.getContext("2d");
         this.ctx.save();
         this.ctx.font ="italic 25px serif";
-        this.ctx.fillText("Please select input file", (this.canvas.width-350)/2 , this.canvas.height/2);
+        this.ctx.fillText("Please select input file", (this.canvas.width-280)/2 , this.canvas.height/2);
         this.ctx.restore();
         // resize
         window.addEventListener('resize', this.onWindowResize, false); 
@@ -57,7 +58,7 @@ class Canvas extends React.Component{
                 this.utils.circles.forEach( circle => {
                     if(this.IntersectWithCircle(pos, circle)){
                         this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
-                        this.utils.swapNodes(circle.id, this.state.Cladogram, this.canvas, this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
+                        this.utils.swapNodes(circle.id, this.state.Cladogram, this.DisplayTheta, this.canvas, this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
                         if(this.DisplayIndex){
                             this.runDisplayIndex(this.state.Cladogram, this.state.RelScaling, this.ctx);
                         }
@@ -71,22 +72,21 @@ class Canvas extends React.Component{
 
         window.addEventListener("keydown", e => {
             if(this.utils.TREEROOT){
-                e.preventDefault();
                 if(e.keyCode === 37){  //left arrow 
+                    e.preventDefault();
                     if(this.state.currTree > 0){
                         this.setState({currTree: this.state.currTree-1})
                         this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
-                        this.utils.drawOneTree(this.state.currTree,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
-                        console.log("going left",this.state.currTree)
+                        this.utils.drawOneTree(this.state.currTree,this.state.treeVec, this.state.Cladogram, this.DisplayTheta, this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
                         this.refs.slider.arrowKeyChange(this.state.currTree);
                     }
                 }
-                else if(e.keyCode === 39){ //right arrow 
+                else if(e.keyCode === 39){ //right arrow
+                    e.preventDefault();
                     if(this.state.currTree < this.state.treeVec.length){
                         this.setState({currTree: this.state.currTree+1})
                         this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
-                        this.utils.drawOneTree(this.state.currTree,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
-                        console.log("going right", this.state.currTree)
+                        this.utils.drawOneTree(this.state.currTree,this.state.treeVec, this.state.Cladogram, this.DisplayTheta, this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
                         this.refs.slider.arrowKeyChange(this.state.currTree);
                     }
                 }
@@ -123,7 +123,7 @@ class Canvas extends React.Component{
         // Draw first tree  
         let noTr = this.state.treeVec.length-2;
         this.utils.getMaxHeight(noTr, this.state.treeVec);
-        this.utils.drawOneTree(this.state.currTree,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
+        this.utils.drawOneTree(this.state.currTree,this.state.treeVec, this.state.Cladogram,this.DisplayTheta, this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
     }
 
     onWindowResize = () => {
@@ -131,7 +131,7 @@ class Canvas extends React.Component{
         this.ctx.canvas.height = window.innerHeight*0.8;
         this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
         // need function to redraw tree instead
-        this.utils.redrawCurrentTree(this.state.Cladogram,this.canvas, this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
+        this.utils.redrawCurrentTree(this.state.Cladogram, this.DisplayTheta, this.canvas, this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
         if(this.DisplayIndex){
             this.runDisplayIndex(this.state.Cladogram, this.state.RelScaling, this.ctx);
         }
@@ -140,20 +140,17 @@ class Canvas extends React.Component{
     slideToNextTree = (i) => {
         this.DisplayIndex = false;
         let index = Math.round(i);
-        // this.currentTree = index;
         this.setState({currTree : index});
         this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
-        this.utils.drawOneTree(index, this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
+        this.utils.drawOneTree(index, this.state.treeVec, this.state.Cladogram, this.DisplayTheta, this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
     }
 
     toggleIndexDisplay = () => {
         this.swapCount=0;
         this.utils.circles = [];
         this.DisplayIndex = !this.DisplayIndex;
-        // this.setState({updateMe:true});
         this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
-        // this.utils.drawOneTree(this.currentTree,this.state.treeVec, this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
-        this.utils.redrawCurrentTree(this.state.Cladogram,this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
+        this.utils.redrawCurrentTree(this.state.Cladogram, this.DisplayTheta, this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
         if(this.DisplayIndex){
             this.runDisplayIndex(this.state.Cladogram, this.state.RelScaling, this.ctx);
             this.showSwapInstructions(this.ctx);
@@ -163,7 +160,7 @@ class Canvas extends React.Component{
     showSwapInstructions = (context) => {
         if(this.utils.circles.length > 0){
             context.save();
-            context.translate(0,725);
+            context.translate(0,context.canvas.height-20);
             context.fillText("Instruction:\nClick on any node bubbles\non the screen to swap its associated branches ",0,0);
             context.restore();
         }
@@ -197,25 +194,36 @@ class Canvas extends React.Component{
         pdf.save("download.pdf");
     }
 
+    toggleTheta = () => {
+        this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
+        this.DisplayTheta = !this.DisplayTheta;
+        this.utils.redrawCurrentTree(this.state.Cladogram, this.DisplayTheta, this.canvas,this.ctx, this.state.RelScaling, this.ctx.canvas.height*0.9-this.utils.maxNameLength);
+        if(this.DisplayIndex){
+            this.runDisplayIndex(this.state.Cladogram, this.state.RelScaling, this.ctx);
+        }
+    }
+
     render(){
-        let{currTree, treeVec } = this.state;
+        let{ currTree, treeVec } = this.state;
         return(
             <div>
-                <canvas ref="canvas" width={window.innerWidth} height={(window.innerHeight*0.8)} />
+                <canvas ref="canvas" width={window.innerWidth} height={(window.innerHeight*0.75)} />
                 {/* <Slider
-                    initial={0}
+                    initial={0}5
                     max={this.state.treeVec.length} // use length of vector 
                     current={this.currentTree}
                     formatFn={number => number.toFixed(2)}
                     onChange={value => this.slideToNextTree(value)} // round value to get index for treeVect
                 /> */}
-                <Slide ref="slider" currTree={currTree} onChange={value => this.slideToNextTree(value)} treeLength={treeVec.length} currTree={this.state.currTree}/>
+                <Slide ref="slider" currTree={currTree} onChange={value => this.slideToNextTree(value)} treeLength={treeVec.length}/>
                 <div className="display-save-group">
                     <button className="display-btn" onClick={this.toggleIndexDisplay}>Swap Nodes</button>
                     &nbsp;&nbsp;
                     <button className="save-btn" onClick={this.saveAsPDF}>Save as PDF</button>
                     &nbsp;&nbsp;
                     <button onClick={this.props.refresh}>Refresh</button>
+                    &nbsp;&nbsp;
+                    <button onClick={this.toggleTheta}>Toggle Theta</button>
                 </div>
             </div>
         )
